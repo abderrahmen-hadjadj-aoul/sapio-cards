@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -41,6 +43,21 @@ class User implements UserInterface
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $isVerified;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Deck::class, mappedBy="owner", orphanRemoval=true)
+     */
+    private $decks;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $apikey;
+
+    public function __construct()
+    {
+        $this->decks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -134,4 +151,56 @@ class User implements UserInterface
 
         return $this;
     }
+
+    public function toJson()
+    {
+        return [
+            "id" => $this->id,
+            "email" => $this->email,
+            "roles" => $this->roles,
+        ];
+    }
+
+    /**
+     * @return Collection|Deck[]
+     */
+    public function getDecks(): Collection
+    {
+        return $this->decks;
+    }
+
+    public function addDeck(Deck $deck): self
+    {
+        if (!$this->decks->contains($deck)) {
+            $this->decks[] = $deck;
+            $deck->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeck(Deck $deck): self
+    {
+        if ($this->decks->removeElement($deck)) {
+            // set the owning side to null (unless already changed)
+            if ($deck->getOwner() === $this) {
+                $deck->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getApikey(): ?string
+    {
+        return $this->apikey;
+    }
+
+    public function setApikey(string $apikey): self
+    {
+        $this->apikey = $apikey;
+
+        return $this;
+    }
+
 }

@@ -23,3 +23,9 @@ deck
   show cards list
   show priorities
   show stats
+
+---
+
+/user/current
+/user/:id/decks
+

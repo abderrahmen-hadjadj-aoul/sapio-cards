@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body
+{
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+}
+
+.form
+{
+  width: 500px;
+  margin: auto;
+}
+
+form
+{
+  border: 1px solid gray;
+  padding: 30px;
+  border-radius: 5px;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"],
+label
+{
+  font-size: 18px;
+  display: block;
+  width: 100%;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"],
+button
+{
+  font-size: 18px;
+  border: 1px solid hsl(0, 0%, 80%);
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+input[type="checkbox"]
+{
+  display: inline;
+}
+
+form > *
+{
+  margin-bottom: 10px;
+}
+
+label[for="registration_form_agreeTerms"]
+{
+  display: inline;
+}

@@ -12,8 +12,11 @@
         {% block javascripts %}
             {#{{ encore_entry_script_tags('app') }}#}
         {% endblock %}
+        <link rel="stylesheet" href="style.css" type="text/css" media="all">
     </head>
     <body>
-        {% block body %}{% endblock %}
+      <section class="form">
+          {% block body %}{% endblock %}
+      </section>
     </body>
 </html>

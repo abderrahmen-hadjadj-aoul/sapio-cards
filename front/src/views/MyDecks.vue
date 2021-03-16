@@ -1,9 +1,11 @@
 <template>
   <div class="my-decks">
-    <h1>My Decks</h1>
-    <router-link to="/deck/create">
-      Create new deck
+    <router-link class="button" to="/deck/create">
+      <at-button type="primary" icon="icon-plus">
+        Create new deck
+      </at-button>
     </router-link>
+    <h1>My Decks</h1>
     <section class="deck" v-for="deck in decks" :key="deck.id">
       <router-link :to="'/deck/' + deck.id">
         {{ deck.name }}
@@ -27,3 +29,14 @@ export default class MyDecks extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+h1 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+section {
+  margin-bottom: 5px;
+}
+</style>

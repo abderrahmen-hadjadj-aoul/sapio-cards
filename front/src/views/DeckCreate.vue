@@ -3,9 +3,9 @@
     <h1>Create new deck</h1>
     <div class="form">
       <label>Name</label>
-      <at-input v-model="name" placeholder="Please input"></at-input>
+      <at-input v-model="name" placeholder="Name of the deck"></at-input>
       <label>Description</label>
-      <at-textarea v-model="description" placeholder="Please input...">
+      <at-textarea v-model="description" placeholder="Description of the deck">
       </at-textarea>
       <at-button type="success" @click="createDeck">Create</at-button>
     </div>
@@ -38,6 +38,9 @@ export default class DeckCreate extends Vue {
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  margin-bottom: 10px;
+}
 .form > * {
   margin-bottom: 10px;
 }

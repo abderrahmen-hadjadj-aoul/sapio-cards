@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import axios from "axios";
 
 const request = axios.create({
-  baseURL: "http://localhost:8000"
+  baseURL: "https://localhost:8000"
 });
 
 Vue.use(Vuex);
@@ -90,6 +90,25 @@ export default new Vuex.Store({
       } catch (e) {
         console.error("ediCard error", e);
         return false;
+      }
+    },
+    async setAnswer(context, data) {
+      const cardid = data.card.id;
+      const body = {
+        type: data.type
+      };
+      await request.post(`/api/cards/${cardid}/answer`, body);
+      if (!data.card.answers) {
+        data.card.answers = {
+          success: 0,
+          failure: 0
+        };
+      }
+      if (data.type === "success") {
+        data.card.answers.success++;
+      }
+      if (data.type === "failure") {
+        data.card.answers.failure++;
       }
     }
   },

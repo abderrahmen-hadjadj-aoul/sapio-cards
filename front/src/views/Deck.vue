@@ -1,10 +1,18 @@
 <template>
   <div class="deck" v-if="deck">
-    <at-button type="primary" @click="showModalDeck" icon="icon-edit">
-      Update deck
-    </at-button>
+    <div class="buttons">
+      <at-button type="primary" @click="showModalDeck" icon="icon-edit">
+        Update deck
+      </at-button>
+      <router-link :to="'/play-deck/' + deckid">
+        <at-button type="success" icon="icon-play">
+          Play Deck
+        </at-button>
+      </router-link>
+    </div>
 
     <h1>Deck: {{ deck.name }}</h1>
+    <p>Failures: {{ failures }} / {{ total }} - {{ percentage }}%</p>
     <p>{{ deck.description }}</p>
 
     <form class="create-card">
@@ -19,6 +27,8 @@
         <th>#</th>
         <th>Question</th>
         <th>Answer</th>
+        <th>Failures</th>
+        <th>Last</th>
         <th></th>
       </tr>
       <tr v-for="(card, index) in deck.cards" :key="card.id">
@@ -30,11 +40,33 @@
           </span>
         </td>
         <td>
+          <div v-if="card.answers">
+            {{ card.answers.failure }} /
+            {{ card.answers.success + card.answers.failure }} - 
+            {{ percentageCard(card) }}%
+          </div>
+          <div v-else>
+            ?
+          </div>
+        </td>
+        <td class="td-last">
+          <div class="last">
+            <span
+              v-for="(item, index) in last(card)"
+              :key="index"
+              class="dot"
+              :class="{ green: item }"
+            ></span>
+          </div>
+        </td>
+        <td>
           <at-button icon="icon-edit" title="Edit" @click="showModalCard(card)">
           </at-button>
         </td>
       </tr>
     </table>
+
+    <div class="bottom"></div>
 
     <at-modal
       v-model="showModalDeckStatus"
@@ -97,6 +129,26 @@ export default class Deck extends Vue {
 
   get deck() {
     return this.$store.state.deck;
+  }
+
+  get failures() {
+    return this.deck.cards.filter(item => {
+      if (!item.answers) return;
+      if (!item.answers.list) return;
+      const last = item.answers.list.length - 1;
+      return item.answers.list[last];
+    }).length;
+  }
+
+  get total() {
+    return this.deck.cards.length;
+  }
+
+  get percentage() {
+    let p = this.failures / this.total;
+    p = 100 * p;
+    p = Math.ceil(p);
+    return p;
   }
 
   async createCard() {
@@ -177,10 +229,32 @@ export default class Deck extends Vue {
       });
     }
   }
+
+  percentageCard(card) {
+    const total = card.answers.failure + card.answers.success;
+    let p = card.answers.failure / total;
+    p = 100 * p;
+    p = Math.ceil(p);
+    return p;
+  }
+
+  last(card) {
+    if (!card.answers) return;
+    if (!card.answers.list) return;
+    const list = card.answers.list.slice().reverse();
+    return list.slice(0, 5);
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.buttons {
+  margin-bottom: 10px;
+  & > * {
+    margin-right: 10px;
+  }
+}
+
 form.create-card {
   border-radius: 5px;
   border: 1px solid hsl(0, 0%, 85%);
@@ -212,6 +286,30 @@ td {
   }
   &:hover > .blur {
     filter: blur(0);
+  }
+}
+
+.bottom {
+  height: 10px;
+}
+
+.td-last {
+}
+
+.last {
+  display: flex;
+  justify-content: center;
+}
+
+.dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background-color: #E33410;
+  margin-right: 5px;
+  &.green {
+    background-color: #39CC4A;
   }
 }
 </style>

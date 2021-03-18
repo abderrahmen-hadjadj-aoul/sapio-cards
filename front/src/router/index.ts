@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import MyDecks from "../views/MyDecks.vue";
 import Deck from "../views/Deck.vue";
+import PlayDeck from "../views/PlayDeck.vue";
 import DeckCreate from "../views/DeckCreate.vue";
 
 Vue.use(VueRouter);
@@ -22,6 +23,11 @@ const routes: Array<RouteConfig> = [
     path: "/deck/create",
     name: "DeckCreate",
     component: DeckCreate
+  },
+  {
+    path: "/play-deck/:deckid",
+    name: "PlayDeck",
+    component: PlayDeck
   },
   {
     path: "/deck/:deckid",

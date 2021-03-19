@@ -242,7 +242,7 @@ export default class Deck extends Vue {
     if (!card.answers) return;
     if (!card.answers.list) return;
     const list = card.answers.list.slice().reverse();
-    return list.slice(0, 5);
+    return list.slice(0, 3);
   }
 }
 </script>

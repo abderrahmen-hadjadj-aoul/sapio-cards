@@ -1,13 +1,13 @@
 <template>
   <div class="deck" v-if="deck">
+    <router-link :to="'/deck/' + deckid">
+      <i class="icon icon-chevron-left"></i>
+      Back
+    </router-link>
+    <br />
+    <br />
     <h1>Play Deck</h1>
     <h2>Do you know how to answer this question ?</h2>
-    <p v-if="card" class="question">{{ card.question }}</p>
-    <p v-if="card" class="answer">
-      <span>
-        {{ card.answer }}
-      </span>
-    </p>
     <div class="evaluation">
       <at-button type="success" size="large" @click="yes">
         Yes
@@ -20,6 +20,20 @@
     <at-button size="large" @click="choose">
       Next
     </at-button>
+    <br />
+    <br />
+    <h2>
+      Question
+    </h2>
+    <p v-if="card" class="question">{{ card.question }}</p>
+    <h2>
+      Answer
+    </h2>
+    <p v-if="card" class="answer">
+      <span>
+        {{ card.answer }}
+      </span>
+    </p>
   </div>
 </template>
 

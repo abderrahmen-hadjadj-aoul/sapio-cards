@@ -23,7 +23,10 @@ class DecksController extends AbstractController
      */
     public function index(DeckRepository $deckRepo): Response
     {
-        $decks = $deckRepo->findAll();
+
+        $user = $this->getUser();
+
+        $decks = $deckRepo->findBy(['owner' => $user]);
         $res = [
             "decks" => array_map(fn($deck) => $deck->toJson(), $decks)
         ];
@@ -35,6 +38,16 @@ class DecksController extends AbstractController
      */
     public function findOne(DeckRepository $deckRepo, Deck $deck): Response
     {
+
+        $user = $this->getUser();
+
+        if ($deck->getOwner()->getId() != $user->getId()) {
+          $message = ["message" => "You are not authorized"];
+          $res = new JsonResponse($message);
+          $res->setStatus(401);
+          return $res;
+        }
+
         $res = [
             "deck" => $deck->toJson()
         ];
@@ -47,7 +60,7 @@ class DecksController extends AbstractController
     public function create(Request $req, UserRepository $userRepo): Response
     {
 
-        $user = $userRepo->findAll()[0];
+        $user = $this->getUser();
 
         $data = $req->toArray();
         $name = $data['name'];
@@ -76,7 +89,7 @@ class DecksController extends AbstractController
     public function patchDeck(Request $req, UserRepository $userRepo, Deck $deck): Response
     {
 
-        $user = $userRepo->findAll()[0];
+        $user = $this->getUser();
 
         $data = $req->toArray();
         $entityManager = $this->getDoctrine()->getManager();
@@ -104,6 +117,15 @@ class DecksController extends AbstractController
      */
     public function findOneWithCard(DeckRepository $deckRepo, Deck $deck): Response
     {
+        $user = $this->getUser();
+
+        if ($deck->getOwner()->getId() != $user->getId()) {
+          $message = ["message" => "You are not authorized"];
+          $res = new JsonResponse($message);
+          $res->setStatus(401);
+          return $res;
+        }
+
         $res = [
             "deck" => $deck->toJson(["cards" => true]),
         ];
@@ -118,7 +140,8 @@ class DecksController extends AbstractController
       UserRepository $userRepo,
       Deck $deck): Response
     {
-        $user = $userRepo->findAll()[0];
+
+        $user = $this->getUser();
 
         $data = $req->toArray();
         $question = $data["question"];
@@ -148,7 +171,8 @@ class DecksController extends AbstractController
       UserRepository $userRepo,
       Card $card): Response
     {
-        $user = $userRepo->findAll()[0];
+
+        $user = $this->getUser();
 
         $data = $req->toArray();
         $question = $data["question"];

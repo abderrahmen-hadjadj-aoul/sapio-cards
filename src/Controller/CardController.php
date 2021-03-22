@@ -21,6 +21,16 @@ class CardController extends AbstractController
      */
     public function answer(Request $req, Card $card): Response
     {
+
+        $user = $this->getUser();
+        $deck = $card->getDeck();
+
+        if ($deck->getOwner()->getId() != $user->getId()) {
+          $message = ["message" => "You are not authorized"];
+          $res = new JsonResponse($message);
+          $res->setStatus(401);
+          return $res;
+        }
         $data = $req->toArray();
         $isSuccess = $data["type"] === "success";
         $isFailure = $data["type"] === "failure";

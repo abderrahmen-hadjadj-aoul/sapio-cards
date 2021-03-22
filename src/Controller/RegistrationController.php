@@ -42,6 +42,9 @@ class RegistrationController extends AbstractController
                 )
             );
 
+            $token = bin2hex(random_bytes(60));
+            $user->setApikey($token);
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();

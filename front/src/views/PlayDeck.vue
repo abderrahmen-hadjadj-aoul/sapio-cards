@@ -25,10 +25,20 @@
 
     <h2>Do you know how to answer this question ?</h2>
     <div class="evaluation">
-      <at-button type="success" size="large" @click="yes">
+      <at-button
+        type="success"
+        size="large"
+        @click="yes"
+        :disabled="buttonDisabled"
+      >
         Yes
       </at-button>
-      <at-button type="error" size="large" @click="no">
+      <at-button
+        type="error"
+        size="large"
+        @click="no"
+        :disabled="buttonDisabled"
+      >
         No
       </at-button>
     </div>
@@ -60,6 +70,7 @@ import { Component, Vue } from "vue-property-decorator";
 export default class PlayDeck extends Vue {
   index = null;
   failedOnly = false;
+  buttonDisabled = false;
 
   async mounted() {
     console.log("mounted");
@@ -156,7 +167,9 @@ export default class PlayDeck extends Vue {
       card: this.card,
       type: "success"
     };
+    this.buttonDisabled = true;
     await this.$store.dispatch("setAnswer", params);
+    setTimeout(() => (this.buttonDisabled = false), 500);
     this.choose();
   }
 
@@ -165,7 +178,9 @@ export default class PlayDeck extends Vue {
       card: this.card,
       type: "failure"
     };
+    this.buttonDisabled = true;
     await this.$store.dispatch("setAnswer", params);
+    setTimeout(() => (this.buttonDisabled = false), 500);
     this.choose();
   }
 

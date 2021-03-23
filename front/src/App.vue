@@ -27,15 +27,14 @@
 h1.brand {
   font-family: "Dancing Script", cursive;
   margin-top: 20px;
-  padding-bottom: 10px;
-  font-size: 40px;
-  border-bottom: 2px solid hsl(0, 0%, 90%);
+  padding: 15px;
+  font-size: 25px;
+  background-color: hsl(0, 0%, 95%);
   text-align: center;
   color: #1b9638;
   span {
     font-weight: normal;
     font-family: "Roboto", sans-serif;
-    display: block;
     font-size: 17px;
     font-style: italic;
     color: hsl(0, 0%, 40%);
@@ -43,25 +42,22 @@ h1.brand {
 }
 
 #nav {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   a {
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 20px;
+    margin-bottom: 20px;
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
-    border-radius: 5px;
-    background-color: hsl(0, 0%, 97%);
+    border-bottom: 2px solid hsl(0, 0%, 80%);
     &:hover {
-      background-color: #389e17;
-      color: white;
+      background-color: $hover-bg;
+      color: $hover;
     }
-    &.router-link-active {
+    &.router-link-exact-active {
       color: #389e17;
-      &:hover {
-        color: white;
-      }
     }
   }
 }

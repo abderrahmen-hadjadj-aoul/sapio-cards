@@ -23,6 +23,8 @@
     <p>Failures: {{ failures }} / {{ total }} - {{ percentage }}%</p>
     <p>{{ deck.description }}</p>
 
+    <at-switch :value="failedOnly" @change="onChangeFailedOnly"></at-switch>
+
     <form class="create-card">
       <h2>Create new card</h2>
       <at-textarea v-model="question" placeholder="Question"></at-textarea>
@@ -39,7 +41,7 @@
         <th>Last</th>
         <th></th>
       </tr>
-      <tr v-for="(card, index) in deck.cards" :key="card.id">
+      <tr v-for="(card, index) in cards" :key="card.id">
         <td>#{{ index }}</td>
         <td>{{ card.question }}</td>
         <td class="answer">
@@ -50,7 +52,7 @@
         <td>
           <div v-if="card.answers">
             {{ card.answers.failure }} /
-            {{ card.answers.success + card.answers.failure }} - 
+            {{ card.answers.success + card.answers.failure }} -
             {{ percentageCard(card) }}%
           </div>
           <div v-else>
@@ -127,6 +129,7 @@ export default class Deck extends Vue {
   editDeckValue = { name: "", description: "" };
 
   publishDisabled = false;
+  failedOnly = false;
 
   mounted() {
     console.log("mounted");
@@ -141,6 +144,13 @@ export default class Deck extends Vue {
     return this.$store.state.deck;
   }
 
+  get cards() {
+    if (this.failedOnly) {
+      return this.failed;
+    }
+    return this.deck.cards;
+  }
+
   get failures() {
     return this.deck.cards.filter(item => {
       if (!item.answers) return;
@@ -148,6 +158,20 @@ export default class Deck extends Vue {
       const last = item.answers.list.length - 1;
       return item.answers.list[last];
     }).length;
+  }
+
+  get failed() {
+    return this.deck.cards.filter(item => {
+      if (!item.answers) return true;
+      if (!item.answers.list) return true;
+      const list = item.answers.list;
+      let score = 0;
+      const last = item.answers.list.length - 1;
+      if (list[last]) score++;
+      if (list[last - 1]) score++;
+      if (list[last - 2]) score++;
+      return score < 3;
+    });
   }
 
   get total() {
@@ -266,6 +290,10 @@ export default class Deck extends Vue {
         message: "Deck successfully published"
       });
     }
+  }
+
+  onChangeFailedOnly() {
+    this.failedOnly = !this.failedOnly;
   }
 }
 </script>

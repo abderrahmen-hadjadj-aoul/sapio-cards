@@ -5,10 +5,19 @@
         Create new deck
       </at-button>
     </router-link>
+
     <h1>My Decks</h1>
+    <at-input v-model="search" placeholder="Search decks" prepend-button>
+      <template slot="prepend">
+        <i class="icon icon-search"></i>
+      </template>
+    </at-input>
+    <p v-if="search" class="count">Found {{ decks.length }} deck(s)</p>
+    <br />
+
     <section class="deck" v-for="deck in decks" :key="deck.id">
       <router-link :to="'/deck/' + deck.id">
-        {{ deck.name }}
+        <span v-html="searched(deck.name)" class="name"></span>
       </router-link>
     </section>
   </div>
@@ -16,16 +25,31 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
 @Component({})
 export default class MyDecks extends Vue {
+  search = "";
+
   mounted() {
     console.log("mounted");
     this.$store.dispatch("getMyDecks");
     this.$store.commit("resetDeck");
   }
 
+  searched(text) {
+    if (!this.search) return text;
+    const escaped = escapeRegExp(this.search);
+    const regex = new RegExp("" + escaped + "", "i");
+    return text.replace(regex, "<span>$&</span>");
+  }
+
   get decks() {
-    return this.$store.state.decks;
+    if (!this.search) return this.$store.state.decks;
+    return this.$store.state.decks.filter(deck =>
+      deck.name.toLowerCase().includes(this.search.toLowerCase())
+    );
   }
 }
 </script>
@@ -56,5 +80,13 @@ section {
       color: $hover;
     }
   }
+}
+
+::v-deep .name span {
+  background-color: yellow;
+}
+
+.count {
+  margin-top: 5px;
 }
 </style>

@@ -357,10 +357,10 @@ td {
   width: 10px;
   height: 10px;
   border-radius: 10px;
-  background-color: #E33410;
+  background-color: #e33410;
   margin-right: 5px;
   &.green {
-    background-color: #39CC4A;
+    background-color: #39cc4a;
   }
 }
 </style>

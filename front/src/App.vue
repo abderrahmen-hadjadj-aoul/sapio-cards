@@ -30,7 +30,7 @@ h1.brand {
   font-size: 40px;
   border-bottom: 2px solid hsl(0, 0%, 90%);
   text-align: center;
-  color: #1B9638;
+  color: #1b9638;
   span {
     font-weight: normal;
     font-family: "Roboto", sans-serif;
@@ -53,11 +53,11 @@ h1.brand {
     border-radius: 5px;
     background-color: hsl(0, 0%, 97%);
     &:hover {
-      background-color: #389E17;
+      background-color: #389e17;
       color: white;
     }
     &.router-link-active {
-      color: #389E17;
+      color: #389e17;
       &:hover {
         color: white;
       }

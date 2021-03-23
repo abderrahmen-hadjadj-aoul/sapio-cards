@@ -15,6 +15,7 @@ export default new Vuex.Store({
   state: {
     user: null,
     decks: [],
+    publicDecks: [],
     deck: null,
     card: null
   },
@@ -25,6 +26,10 @@ export default new Vuex.Store({
     },
     setMyDecks(state, decks) {
       state.decks = decks;
+      console.log(decks);
+    },
+    setPublicDecks(state, decks) {
+      state.publicDecks = decks;
       console.log(decks);
     },
     setDeck(state, deck) {
@@ -47,6 +52,11 @@ export default new Vuex.Store({
       context.commit("setCurrentUser", user);
     },
     // DECKS
+    async getPublicDecks(context) {
+      const res = await request.get("/api/decks");
+      const decks = res.data.decks;
+      context.commit("setPublicDecks", decks);
+    },
     async getMyDecks(context) {
       const res = await request.get("/api/decks/mine");
       const decks = res.data.decks;

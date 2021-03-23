@@ -1,7 +1,12 @@
 <template>
   <div class="deck" v-if="deck">
     <div class="buttons">
-      <at-button type="primary" @click="showModalDeck" icon="icon-edit">
+      <at-button
+        type="primary"
+        @click="showModalDeck"
+        icon="icon-edit"
+        v-if="editable"
+      >
         Update deck
       </at-button>
       <at-button
@@ -9,6 +14,7 @@
         icon="icon-navigation"
         @click="publish"
         :disabled="publishDisabled"
+        v-if="editable"
       >
         Publish
       </at-button>
@@ -24,8 +30,11 @@
     <p>{{ deck.description }}</p>
 
     <at-switch :value="failedOnly" @change="onChangeFailedOnly"></at-switch>
+    Failed only
+    <br />
+    <br />
 
-    <form class="create-card">
+    <form class="create-card" v-if="editable">
       <h2>Create new card</h2>
       <at-textarea v-model="question" placeholder="Question"></at-textarea>
       <at-textarea v-model="answer" placeholder="Answer"></at-textarea>
@@ -136,6 +145,11 @@ export default class Deck extends Vue {
     this.$store.dispatch("getDeck", this.deckid);
   }
 
+  get editable() {
+    if (!this.deck) return null;
+    return !this.deck.published;
+  }
+
   get deckid() {
     return this.$route.params.deckid;
   }
@@ -152,11 +166,13 @@ export default class Deck extends Vue {
   }
 
   get failures() {
+    if (!this.deck) return null;
+    if (!this.deck.cards) return null;
     return this.deck.cards.filter(item => {
       if (!item.answers) return;
       if (!item.answers.list) return;
       const last = item.answers.list.length - 1;
-      return item.answers.list[last];
+      return !item.answers.list[last];
     }).length;
   }
 
@@ -175,6 +191,8 @@ export default class Deck extends Vue {
   }
 
   get total() {
+    if (!this.deck) return null;
+    if (!this.deck.cards) return null;
     return this.deck.cards.length;
   }
 
@@ -195,6 +213,8 @@ export default class Deck extends Vue {
       card
     };
     await this.$store.dispatch("createCard", data);
+    this.question = "";
+    this.answer = "";
   }
 
   showModalDeck() {

@@ -60,6 +60,11 @@ class Deck
      */
     private $version;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $last = false;
+
     public function __construct()
     {
         $this->cards = new ArrayCollection();
@@ -225,6 +230,18 @@ class Deck
     public function setVersion(?int $version): self
     {
         $this->version = $version;
+
+        return $this;
+    }
+
+    public function getLast(): ?bool
+    {
+        return $this->last;
+    }
+
+    public function setLast(bool $last): self
+    {
+        $this->last = $last;
 
         return $this;
     }

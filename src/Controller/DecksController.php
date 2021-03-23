@@ -19,9 +19,26 @@ use App\Entity\Card;
 class DecksController extends AbstractController
 {
     /**
-     * @Route("/decks/mine", name="decks_find_mine", methods={"GET"})
+     * @Route("/decks", name="decks_find", methods={"GET"})
      */
     public function index(DeckRepository $deckRepo): Response
+    {
+
+        $user = $this->getUser();
+
+        $decks = $deckRepo->findBy(['published' => true, 'last' => true]);
+        $res = [
+            "decks" => array_map(fn($deck) => $deck->toJson(), $decks)
+        ];
+
+        return new JsonResponse($res);
+
+    }
+
+    /**
+     * @Route("/decks/mine", name="decks_find_mine", methods={"GET"})
+     */
+    public function mine(DeckRepository $deckRepo): Response
     {
 
         $user = $this->getUser();
@@ -95,7 +112,7 @@ class DecksController extends AbstractController
 
         $isOwner = $user->getId() === $card->getOwner()->getId();
         if (!$isOwner) {
-            $body = ["message" => "You are not authorized to update this card"];
+            $body = ["message" => "You are not authorized to update this deck"];
             $res = new JsonResponse($body);
             $res->setStatus(401);
             return $res;
@@ -130,10 +147,10 @@ class DecksController extends AbstractController
         $user = $this->getUser();
 
         if ($deck->getOwner()->getId() != $user->getId()) {
-          $message = ["message" => "You are not authorized"];
-          $res = new JsonResponse($message);
-          $res->setStatus(401);
-          return $res;
+            $message = ["message" => "You are not authorized to browse this deck"];
+            $res = new JsonResponse($message);
+            $res->setStatus(401);
+            return $res;
         }
 
         $res = [
@@ -153,9 +170,9 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
-        $isOwner = $user->getId() === $card->getOwner()->getId();
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
         if (!$isOwner) {
-            $body = ["message" => "You are not authorized to update this card"];
+            $body = ["message" => "You are not authorized to update this deck"];
             $res = new JsonResponse($body);
             $res->setStatus(401);
             return $res;
@@ -170,7 +187,6 @@ class DecksController extends AbstractController
         $card->setDeck($deck);
         $card->setQuestion($question);
         $card->setAnswer($answer);
-        $card->setOwner($user);
 
         $entityManager->persist($card);
         $entityManager->flush();
@@ -232,9 +248,9 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
-        $isOwner = $user->getId() === $card->getOwner()->getId();
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
         if (!$isOwner) {
-            $body = ["message" => "You are not authorized to update this card"];
+            $body = ["message" => "You are not authorized to read this deck"];
             $res = new JsonResponse($body);
             $res->setStatus(401);
             return $res;
@@ -255,9 +271,9 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
-        $isOwner = $user->getId() === $card->getOwner()->getId();
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
         if (!$isOwner) {
-            $body = ["message" => "You are not authorized to update this card"];
+            $body = ["message" => "You are not authorized to publish this deck"];
             $res = new JsonResponse($body);
             $res->setStatus(401);
             return $res;
@@ -265,6 +281,11 @@ class DecksController extends AbstractController
 
         $entityManager = $this->getDoctrine()->getManager();
 
+        $decks = $deck->getDecks();
+        foreach ($decks as $key => $publishedDeck) {
+            $publishedDeck->setLast(false);
+            $entityManager->persist($publishedDeck);
+        }
         $newDeck = new Deck();
         $newDeck->setName($deck->getName());
         $newDeck->setDescription($deck->getDescription());
@@ -272,6 +293,7 @@ class DecksController extends AbstractController
         $newDeck->setVersion($version);
         $newDeck->setParent($deck);
         $newDeck->setPublished(true);
+        $newDeck->setLast(true);
         $newDeck->setOwner($deck->getOwner());
 
         $cards = $deck->getCards();

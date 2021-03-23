@@ -5,6 +5,7 @@ import MyDecks from "../views/MyDecks.vue";
 import Deck from "../views/Deck.vue";
 import PlayDeck from "../views/PlayDeck.vue";
 import DeckCreate from "../views/DeckCreate.vue";
+import Browse from "../views/Browse.vue";
 
 Vue.use(VueRouter);
 
@@ -13,6 +14,11 @@ const routes: Array<RouteConfig> = [
     path: "/",
     name: "Home",
     component: Home
+  },
+  {
+    path: "/browse",
+    name: "Browse",
+    component: Browse
   },
   {
     path: "/my-decks",

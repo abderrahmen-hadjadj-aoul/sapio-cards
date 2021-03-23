@@ -7,6 +7,7 @@
 
     <div id="nav">
       <router-link to="/">Home</router-link>
+      <router-link to="/browse">Browse</router-link>
       <router-link to="/my-decks">My Decks</router-link>
       <router-link to="/about">About</router-link>
     </div>

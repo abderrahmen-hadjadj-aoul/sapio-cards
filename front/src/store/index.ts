@@ -43,6 +43,7 @@ export default new Vuex.Store({
     async getCurrentUser(context) {
       const res = await request.get("/api/user/current");
       const user = res.data.user;
+      console.log("user", user);
       context.commit("setCurrentUser", user);
     },
     // DECKS

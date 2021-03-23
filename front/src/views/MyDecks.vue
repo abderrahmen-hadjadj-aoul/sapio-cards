@@ -39,4 +39,22 @@ h1 {
 section {
   margin-bottom: 5px;
 }
+
+.deck {
+  border-radius: 5px;
+  border: 1px solid hsl(0, 0%, 80%);
+  transition: 0.3s;
+  a {
+    display: block;
+    padding: 10px;
+    transition: 0.3s;
+  }
+  &:hover {
+    border-color: $hover;
+    background-color: $hover-bg;
+    a {
+      color: $hover;
+    }
+  }
+}
 </style>

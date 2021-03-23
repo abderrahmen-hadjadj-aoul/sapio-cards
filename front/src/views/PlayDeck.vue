@@ -6,7 +6,23 @@
     </router-link>
     <br />
     <br />
+
     <h1>Play Deck</h1>
+    <p>
+      The cards will be randomly selected, but there is 70% chance you get a
+      card you failed, and 30% chance another card.
+      <br />
+      If you enable "Failed cards only" then you will only get cards you failed
+      at least once in the last 3 attempts.
+    </p>
+    <br />
+    <p>
+      <at-switch :value="failedOnly" @change="onChangeFailedOnly"></at-switch>
+      &nbsp;
+      <b>Failed cards only</b>
+    </p>
+    <br />
+
     <h2>Do you know how to answer this question ?</h2>
     <div class="evaluation">
       <at-button type="success" size="large" @click="yes">
@@ -22,6 +38,7 @@
     </at-button>
     <br />
     <br />
+
     <h2>
       Question
     </h2>
@@ -42,6 +59,7 @@ import { Component, Vue } from "vue-property-decorator";
 @Component({})
 export default class PlayDeck extends Vue {
   index = null;
+  failedOnly = false;
 
   async mounted() {
     console.log("mounted");
@@ -66,9 +84,9 @@ export default class PlayDeck extends Vue {
 
   get failures() {
     const list = [];
-    this.deck.cards.forEach((card,index) => {
-      if (!card.answers) return false;
-      if (!card.answers.list) return false;
+    this.deck.cards.forEach((card, index) => {
+      if (!card.answers) return list.push(index);
+      if (!card.answers.list) return list.push(index);
       let sinceFailure = 0;
       const invert = card.answers.list.reverse();
       for (let i = 0, len = invert.length; i < len; i++) {
@@ -80,7 +98,7 @@ export default class PlayDeck extends Vue {
       console.log("------");
       console.log("invert", invert);
       console.log("sinceFailure", index, sinceFailure);
-      const isValid = sinceFailure > 3;
+      const isValid = sinceFailure >= 3;
       if (!isValid) {
         list.push(index);
       }
@@ -91,10 +109,11 @@ export default class PlayDeck extends Vue {
   choose() {
     const threshold = 0.7;
     const score = Math.random();
-    if (score > threshold) {
-      this.chooseAll();
-    } else {
+    const failedOnly = this.failedOnly;
+    if (failedOnly || score < threshold) {
       this.chooseFailures();
+    } else {
+      this.chooseAll();
     }
   }
 
@@ -147,6 +166,12 @@ export default class PlayDeck extends Vue {
       type: "failure"
     };
     await this.$store.dispatch("setAnswer", params);
+    this.choose();
+  }
+
+  onChangeFailedOnly() {
+    this.failedOnly = !this.failedOnly;
+    console.log("choice", this.failedOnly);
     this.choose();
   }
 }

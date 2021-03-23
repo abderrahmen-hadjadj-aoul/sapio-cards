@@ -38,6 +38,12 @@ class Answer
      */
     private $list = [];
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="answers")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $owner;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -99,6 +105,18 @@ class Answer
             "list" => $this->getList()
         ];
         return $res;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): self
+    {
+        $this->owner = $owner;
+
+        return $this;
     }
 
 }

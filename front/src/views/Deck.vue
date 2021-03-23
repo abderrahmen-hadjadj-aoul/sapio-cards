@@ -4,6 +4,14 @@
       <at-button type="primary" @click="showModalDeck" icon="icon-edit">
         Update deck
       </at-button>
+      <at-button
+        type="primary"
+        icon="icon-navigation"
+        @click="publish"
+        :disabled="publishDisabled"
+      >
+        Publish
+      </at-button>
       <router-link :to="'/play-deck/' + deckid">
         <at-button type="success" icon="icon-play">
           Play Deck
@@ -117,6 +125,8 @@ export default class Deck extends Vue {
 
   editCardValue = { question: "", answer: "" };
   editDeckValue = { name: "", description: "" };
+
+  publishDisabled = false;
 
   mounted() {
     console.log("mounted");
@@ -243,6 +253,19 @@ export default class Deck extends Vue {
     if (!card.answers.list) return;
     const list = card.answers.list.slice().reverse();
     return list.slice(0, 3);
+  }
+
+  async publish() {
+    console.log("Publish");
+    this.publishDisabled = true;
+    const res = await this.$store.dispatch("publishDeck", this.deck);
+    this.publishDisabled = false;
+    if (res.success) {
+      this.$Notify.success({
+        title: "Published",
+        message: "Deck successfully published"
+      });
+    }
   }
 }
 </script>

@@ -26,11 +26,13 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
-        $decks = $deckRepo->findBy(['owner' => $user]);
+        $decks = $deckRepo->findBy(['owner' => $user, 'published' => false]);
         $res = [
             "decks" => array_map(fn($deck) => $deck->toJson(), $decks)
         ];
+
         return new JsonResponse($res);
+
     }
 
     /**
@@ -91,6 +93,14 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
+        $isOwner = $user->getId() === $card->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatus(401);
+            return $res;
+        }
+
         $data = $req->toArray();
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -127,7 +137,7 @@ class DecksController extends AbstractController
         }
 
         $res = [
-            "deck" => $deck->toJson(["cards" => true]),
+            "deck" => $deck->toJson(["cards" => true, "publishedDecks" => true]),
         ];
         return new JsonResponse($res);
     }
@@ -143,6 +153,14 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
+        $isOwner = $user->getId() === $card->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatus(401);
+            return $res;
+        }
+
         $data = $req->toArray();
         $question = $data["question"];
         $answer = $data["answer"];
@@ -152,6 +170,7 @@ class DecksController extends AbstractController
         $card->setDeck($deck);
         $card->setQuestion($question);
         $card->setAnswer($answer);
+        $card->setOwner($user);
 
         $entityManager->persist($card);
         $entityManager->flush();
@@ -173,6 +192,15 @@ class DecksController extends AbstractController
     {
 
         $user = $this->getUser();
+        $deck = $card->getDeck();
+
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatus(401);
+            return $res;
+        }
 
         $data = $req->toArray();
         $question = $data["question"];
@@ -195,4 +223,74 @@ class DecksController extends AbstractController
 
         return new JsonResponse($res);
     }
+
+    /**
+     * @Route("/decks/{deck}/published", name="published_decks", methods={"GET"})
+     */
+    public function getPublishedDecks(Deck $deck)
+    {
+
+        $user = $this->getUser();
+
+        $isOwner = $user->getId() === $card->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatus(401);
+            return $res;
+        }
+
+        $decks = $deck->getDecks()->toArray();
+        $res = [
+            "decks" => array_map(fn($deck) => $deck->toJson(), $decks)
+        ];
+        return null;
+    }
+
+    /**
+     * @Route("/decks/{deck}/published", name="publish_deck", methods={"POST"})
+     */
+    public function publishDeck(Deck $deck)
+    {
+
+        $user = $this->getUser();
+
+        $isOwner = $user->getId() === $card->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatus(401);
+            return $res;
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $newDeck = new Deck();
+        $newDeck->setName($deck->getName());
+        $newDeck->setDescription($deck->getDescription());
+        $version = count($deck->getDecks()) + 1;
+        $newDeck->setVersion($version);
+        $newDeck->setParent($deck);
+        $newDeck->setPublished(true);
+        $newDeck->setOwner($deck->getOwner());
+
+        $cards = $deck->getCards();
+        foreach ($cards as $key => $card) {
+            $newCard = new Card();
+            $newCard->setDeck($newDeck);
+            $newCard->setQuestion($card->getQuestion());
+            $newCard->setAnswer($card->getAnswer());
+            $entityManager->persist($newCard);
+        }
+
+        $entityManager->persist($newDeck);
+        $entityManager->flush();
+
+        $res = [
+            "deck" => $newDeck->toJson()
+        ];
+
+        return new JsonResponse($res);
+    }
+
 }

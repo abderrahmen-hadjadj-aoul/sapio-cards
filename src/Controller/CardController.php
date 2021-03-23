@@ -25,6 +25,14 @@ class CardController extends AbstractController
         $user = $this->getUser();
         $deck = $card->getDeck();
 
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatus(401);
+            return $res;
+        }
+
         if ($deck->getOwner()->getId() != $user->getId()) {
           $message = ["message" => "You are not authorized"];
           $res = new JsonResponse($message);
@@ -34,10 +42,14 @@ class CardController extends AbstractController
         $data = $req->toArray();
         $isSuccess = $data["type"] === "success";
         $isFailure = $data["type"] === "failure";
-        $answers = $card->getAnswers();
+        $answers = $card->getAnswers()->toArray();
+        $answers = array_filter($answers,
+            fn($answer) => $answer->getOwner()->getId() === $user->getId()
+        );
         $answer = null;
         if (count($answers) === 0) {
             $answer = new Answer();
+            $answer->setOwner($user);
             $card->addAnswer($answer);
         } else {
             $answer = $answers[0];
@@ -52,7 +64,6 @@ class CardController extends AbstractController
         $list = $answer->getList();
         $list[] = $last;
         $answer->setList($list);
-        $answer->setFailure($answer->getFailure() + 1);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($card);
         $entityManager->persist($answer);

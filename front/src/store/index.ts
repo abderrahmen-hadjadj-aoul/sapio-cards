@@ -53,7 +53,7 @@ export default new Vuex.Store({
       context.commit("setMyDecks", decks);
     },
     async getDeck(context, deckid) {
-      const res = await request.get(`/api/decks/${deckid}/cards`);
+      const res = await request.get(`/api/decks/${deckid}/cards?published=1`);
       const deck = res.data.deck;
       context.commit("setDeck", deck);
     },
@@ -74,6 +74,12 @@ export default new Vuex.Store({
         console.error("editDeck error", e);
         return false;
       }
+    },
+    async publishDeck(context, deck) {
+      const deckid = deck.id;
+      const published = await request.post(`/api/decks/${deckid}/published`);
+      deck.publishedDecks.push(published);
+      return { success: true };
     },
     // CARDS
     async createCard(context, data) {

@@ -54,9 +54,15 @@ class User implements UserInterface
      */
     private $apikey;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Answer::class, mappedBy="owner", orphanRemoval=true)
+     */
+    private $answers;
+
     public function __construct()
     {
         $this->decks = new ArrayCollection();
+        $this->answers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -199,6 +205,36 @@ class User implements UserInterface
     public function setApikey(string $apikey): self
     {
         $this->apikey = $apikey;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Answer[]
+     */
+    public function getAnswers(): Collection
+    {
+        return $this->answers;
+    }
+
+    public function addAnswer(Answer $answer): self
+    {
+        if (!$this->answers->contains($answer)) {
+            $this->answers[] = $answer;
+            $answer->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnswer(Answer $answer): self
+    {
+        if ($this->answers->removeElement($answer)) {
+            // set the owning side to null (unless already changed)
+            if ($answer->getOwner() === $this) {
+                $answer->setOwner(null);
+            }
+        }
 
         return $this;
     }

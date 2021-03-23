@@ -45,9 +45,25 @@ class Deck
      */
     private $cards;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Deck::class, inversedBy="decks")
+     */
+    private $parent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Deck::class, mappedBy="parent")
+     */
+    private $decks;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $version;
+
     public function __construct()
     {
         $this->cards = new ArrayCollection();
+        $this->decks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,15 +124,23 @@ class Deck
         $withCards = isset($options)
           && isset($options["cards"])
           && $options["cards"];
+        $withPublishedDecks = isset($options)
+          && isset($options["publishedDecks"])
+          && $options["publishedDecks"];
         $json = [
             "id" => $this->getId(),
             "name" => $this->name,
             "description" => $this->description,
             "published" => $this->published,
+            "version" => $this->version,
         ];
         if ($withCards) {
             $cards = $this->getCards()->toArray();
-          $json["cards"] = array_map(fn($card) => $card->toJson(), $cards);
+            $json["cards"] = array_map(fn($card) => $card->toJson(), $cards);
+        }
+        if ($withPublishedDecks) {
+            $publishedDecks = $this->getDecks()->toArray();
+            $json["publishedDecks"] = array_map(fn($deck) => $deck->toJson(), $publishedDecks);
         }
         return $json;
     }
@@ -147,6 +171,60 @@ class Deck
                 $card->setDeck(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getDecks(): Collection
+    {
+        return $this->decks;
+    }
+
+    public function addDeck(self $deck): self
+    {
+        if (!$this->decks->contains($deck)) {
+            $this->decks[] = $deck;
+            $deck->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeck(self $deck): self
+    {
+        if ($this->decks->removeElement($deck)) {
+            // set the owning side to null (unless already changed)
+            if ($deck->getParent() === $this) {
+                $deck->setParent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getVersion(): ?int
+    {
+        return $this->version;
+    }
+
+    public function setVersion(?int $version): self
+    {
+        $this->version = $version;
 
         return $this;
     }

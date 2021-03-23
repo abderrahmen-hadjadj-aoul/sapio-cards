@@ -53,6 +53,78 @@ class DecksController extends AbstractController
     }
 
     /**
+     * @Route("/decks/favorites", name="decks_favorites", methods={"GET"})
+     */
+    public function favorites(DeckRepository $deckRepo): Response
+    {
+
+        $user = $this->getUser();
+
+        $decks = $user->getFavorites()->toArray();
+        $res = [
+            "decks" => array_map(fn($deck) => $deck->toJson(), $decks)
+        ];
+
+        return new JsonResponse($res);
+
+    }
+
+    /**
+     * @Route("/decks/favorites", name="decks_add_favorite", methods={"POST"})
+     */
+    public function addFavorites(Request $req, DeckRepository $deckRepo): Response
+    {
+
+        $user = $this->getUser();
+
+        $data = $req->toArray();
+        $deckid = isset($data['deckid']) ? $data['deckid'] : null;
+
+        if (!$deckid) {
+            $body = ["message" => "Missing 'deckid' field"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(400);
+            return $res;
+        }
+
+        $deck = $deckRepo->find($deckid);
+        $user->addFavorite($deck);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $res = [
+            "done" => true
+        ];
+
+        return new JsonResponse($res);
+
+    }
+
+    /**
+     * @Route("/decks/favorites/{deck}", name="decks_delete_favorite", methods={"DELETE"})
+     */
+    public function deleteFavorites(Request $req, Deck $deck): Response
+    {
+
+        $user = $this->getUser();
+
+        $user->removeFavorite($deck);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $res = [
+            "done" => true
+        ];
+
+        return new JsonResponse($res);
+
+    }
+
+    /**
      * @Route("/decks/{deck}", name="decks_find_by_id", methods={"GET"})
      */
     public function findOne(DeckRepository $deckRepo, Deck $deck): Response
@@ -63,13 +135,15 @@ class DecksController extends AbstractController
         if ($deck->getOwner()->getId() != $user->getId()) {
           $message = ["message" => "You are not authorized"];
           $res = new JsonResponse($message);
-          $res->setStatus(401);
+          $res->setStatusCode(401);
           return $res;
         }
 
         $res = [
             "deck" => $deck->toJson()
         ];
+
+
         return new JsonResponse($res);
     }
 
@@ -103,7 +177,7 @@ class DecksController extends AbstractController
     }
 
     /**
-    * @Route("/decks/{deck}", name="decks_update", methods={"PATCH"})
+     * @Route("/decks/{deck}", name="decks_update", methods={"PATCH"})
      */
     public function patchDeck(Request $req, UserRepository $userRepo, Deck $deck): Response
     {
@@ -114,7 +188,7 @@ class DecksController extends AbstractController
         if (!$isOwner) {
             $body = ["message" => "You are not authorized to update this deck"];
             $res = new JsonResponse($body);
-            $res->setStatus(401);
+            $res->setStatusCode(401);
             return $res;
         }
 
@@ -149,13 +223,17 @@ class DecksController extends AbstractController
         if ($deck->getOwner()->getId() != $user->getId()) {
             $message = ["message" => "You are not authorized to browse this deck"];
             $res = new JsonResponse($message);
-            $res->setStatus(401);
+            $res->setStatusCode(401);
             return $res;
         }
 
         $res = [
             "deck" => $deck->toJson(["cards" => true, "publishedDecks" => true]),
         ];
+
+        $favorite = $user->getFavorites()->contains($deck);
+        $res["deck"]["favorite"] = $favorite;
+
         return new JsonResponse($res);
     }
 
@@ -174,7 +252,7 @@ class DecksController extends AbstractController
         if (!$isOwner) {
             $body = ["message" => "You are not authorized to update this deck"];
             $res = new JsonResponse($body);
-            $res->setStatus(401);
+            $res->setStatusCode(401);
             return $res;
         }
 
@@ -214,7 +292,7 @@ class DecksController extends AbstractController
         if (!$isOwner) {
             $body = ["message" => "You are not authorized to update this card"];
             $res = new JsonResponse($body);
-            $res->setStatus(401);
+            $res->setStatusCode(401);
             return $res;
         }
 
@@ -252,7 +330,7 @@ class DecksController extends AbstractController
         if (!$isOwner) {
             $body = ["message" => "You are not authorized to read this deck"];
             $res = new JsonResponse($body);
-            $res->setStatus(401);
+            $res->setStatusCode(401);
             return $res;
         }
 
@@ -275,7 +353,7 @@ class DecksController extends AbstractController
         if (!$isOwner) {
             $body = ["message" => "You are not authorized to publish this deck"];
             $res = new JsonResponse($body);
-            $res->setStatus(401);
+            $res->setStatusCode(401);
             return $res;
         }
 

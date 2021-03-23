@@ -16,6 +16,7 @@ export default new Vuex.Store({
     user: null,
     decks: [],
     publicDecks: [],
+    favoriteDecks: [],
     deck: null,
     card: null
   },
@@ -26,6 +27,10 @@ export default new Vuex.Store({
     },
     setMyDecks(state, decks) {
       state.decks = decks;
+      console.log(decks);
+    },
+    setFavoriteDecks(state, decks) {
+      state.favoriteDecks = decks;
       console.log(decks);
     },
     setPublicDecks(state, decks) {
@@ -62,6 +67,11 @@ export default new Vuex.Store({
       const decks = res.data.decks;
       context.commit("setMyDecks", decks);
     },
+    async getFavoriteDecks(context) {
+      const res = await request.get("/api/decks/favorites");
+      const decks = res.data.decks;
+      context.commit("setFavoriteDecks", decks);
+    },
     async getDeck(context, deckid) {
       const res = await request.get(`/api/decks/${deckid}/cards?published=1`);
       const deck = res.data.deck;
@@ -89,6 +99,19 @@ export default new Vuex.Store({
       const deckid = deck.id;
       const published = await request.post(`/api/decks/${deckid}/published`);
       deck.publishedDecks.push(published);
+      return { success: true };
+    },
+    async addToFavorites(context, deck) {
+      const deckid = deck.id;
+      const body = { deckid };
+      await request.post(`/api/decks/favorites`, body);
+      deck.favorite = true;
+      return { success: true };
+    },
+    async removeFromFavorites(context, deck) {
+      const deckid = deck.id;
+      await request.delete(`/api/decks/favorites/${deckid}`);
+      deck.favorite = false;
       return { success: true };
     },
     // CARDS

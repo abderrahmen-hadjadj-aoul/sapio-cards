@@ -7,6 +7,12 @@
     </router-link>
 
     <h1>My Decks</h1>
+
+    <at-radio-group v-model="type">
+      <at-radio-button label="mine">Mine</at-radio-button>
+      <at-radio-button label="favorites">Favorites</at-radio-button>
+    </at-radio-group>
+
     <at-input v-model="search" placeholder="Search decks" prepend-button>
       <template slot="prepend">
         <i class="icon icon-search"></i>
@@ -31,10 +37,12 @@ function escapeRegExp(string) {
 @Component({})
 export default class MyDecks extends Vue {
   search = "";
+  type = "mine";
 
   mounted() {
     console.log("mounted");
     this.$store.dispatch("getMyDecks");
+    this.$store.dispatch("getFavoriteDecks");
     this.$store.commit("resetDeck");
   }
 
@@ -46,8 +54,12 @@ export default class MyDecks extends Vue {
   }
 
   get decks() {
-    if (!this.search) return this.$store.state.decks;
-    return this.$store.state.decks.filter(deck =>
+    let decks = this.$store.state.decks;
+    if (this.type === "favorites") {
+      decks = this.$store.state.favoriteDecks;
+    }
+    if (!this.search) return decks;
+    return decks.filter(deck =>
       deck.name.toLowerCase().includes(this.search.toLowerCase())
     );
   }

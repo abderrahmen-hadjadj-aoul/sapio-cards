@@ -23,7 +23,22 @@
           Play Deck
         </at-button>
       </router-link>
+      <at-button
+        :disabled="disableFavorite"
+        :type="typeFavorite"
+        @click="toogleFavorites"
+      >
+        <i class="icon icon-star-on"></i>
+        &nbsp;&nbsp;
+        <span v-if="deck.favorite">
+          Remove from favorite
+        </span>
+        <span v-else>
+          Add to favorite
+        </span>
+      </at-button>
     </div>
+
 
     <h1>Deck: {{ deck.name }}</h1>
     <p>Failures: {{ failures }} / {{ total }} - {{ percentage }}%</p>
@@ -140,6 +155,8 @@ export default class Deck extends Vue {
   publishDisabled = false;
   failedOnly = false;
 
+  disableFavorite = false;
+
   mounted() {
     console.log("mounted");
     this.$store.dispatch("getDeck", this.deckid);
@@ -201,6 +218,13 @@ export default class Deck extends Vue {
     p = 100 * p;
     p = Math.ceil(p);
     return p;
+  }
+
+  get typeFavorite() {
+    if (this.deck.favorite) {
+      return "warning";
+    }
+    return "";
   }
 
   async createCard() {
@@ -314,6 +338,26 @@ export default class Deck extends Vue {
 
   onChangeFailedOnly() {
     this.failedOnly = !this.failedOnly;
+  }
+
+  toogleFavorites() {
+    if (this.deck.favorite) {
+      this.removeFromFavorites();
+    } else {
+      this.addToFavorites();
+    }
+  }
+
+  async addToFavorites() {
+    this.disableFavorite = true;
+    await this.$store.dispatch("addToFavorites", this.deck);
+    this.disableFavorite = false;
+  }
+
+  async removeFromFavorites() {
+    this.disableFavorite = true;
+    await this.$store.dispatch("removeFromFavorites", this.deck);
+    this.disableFavorite = false;
   }
 }
 </script>

@@ -59,10 +59,16 @@ class User implements UserInterface
      */
     private $answers;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Deck::class, inversedBy="users")
+     */
+    private $favorites;
+
     public function __construct()
     {
         $this->decks = new ArrayCollection();
         $this->answers = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -235,6 +241,30 @@ class User implements UserInterface
                 $answer->setOwner(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Deck[]
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Deck $favorite): self
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites[] = $favorite;
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Deck $favorite): self
+    {
+        $this->favorites->removeElement($favorite);
 
         return $this;
     }

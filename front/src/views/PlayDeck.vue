@@ -29,7 +29,7 @@
         type="success"
         size="large"
         @click="yes"
-        :disabled="buttonDisabled"
+        :disabled="buttonDisabled || noMoreFailures"
       >
         Yes
       </at-button>
@@ -37,7 +37,7 @@
         type="error"
         size="large"
         @click="no"
-        :disabled="buttonDisabled"
+        :disabled="buttonDisabled || noMoreFailures"
       >
         No
       </at-button>
@@ -49,18 +49,24 @@
     <br />
     <br />
 
-    <h2>
-      Question
-    </h2>
-    <p v-if="card" class="question">{{ card.question }}</p>
-    <h2>
-      Answer
-    </h2>
-    <p v-if="card" class="answer">
-      <span>
-        {{ card.answer }}
-      </span>
-    </p>
+    <div v-if="noMoreFailures">
+      <at-alert type="warning" message="No more failed cards to display">
+      </at-alert>
+    </div>
+    <div v-else>
+      <h2>
+        Question
+      </h2>
+      <p v-if="card" class="question">{{ card.question }}</p>
+      <h2>
+        Answer
+      </h2>
+      <p v-if="card" class="answer">
+        <span>
+          {{ card.answer }}
+        </span>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -71,6 +77,7 @@ export default class PlayDeck extends Vue {
   index = null;
   failedOnly = false;
   buttonDisabled = false;
+  noMoreFailures = false;
 
   async mounted() {
     console.log("mounted");
@@ -106,9 +113,6 @@ export default class PlayDeck extends Vue {
         }
         sinceFailure++;
       }
-      console.log("------");
-      console.log("invert", invert);
-      console.log("sinceFailure", index, sinceFailure);
       const isValid = sinceFailure >= 3;
       if (!isValid) {
         list.push(index);
@@ -118,6 +122,7 @@ export default class PlayDeck extends Vue {
   }
 
   choose() {
+    console.log("choose");
     const threshold = 0.7;
     const score = Math.random();
     const failedOnly = this.failedOnly;
@@ -129,23 +134,33 @@ export default class PlayDeck extends Vue {
   }
 
   chooseFailures() {
+    console.log("chooseFailures");
     const max = this.failures.length;
+    if (max === 0 && this.failedOnly) {
+      console.log("No more failures");
+      this.noMoreFailures = true;
+      return;
+    }
     if (max === 0 || max === 1) {
+      console.log("Only one failure remaining");
       this.chooseAll();
       return;
     }
     let value = null;
     const previous = this.index;
     let index = null;
+    console.log("choosing to max", max);
     do {
       value = Math.random() * max;
       index = Math.floor(value);
       index = this.failures[index];
     } while (index === previous && max > 1);
     this.index = index;
+    console.log("failure choosen", index);
   }
 
   chooseAll() {
+    console.log("chooseAll");
     const max = this.deck.cards.length;
     if (max === 0) {
       return;
@@ -187,6 +202,7 @@ export default class PlayDeck extends Vue {
   onChangeFailedOnly() {
     this.failedOnly = !this.failedOnly;
     console.log("choice", this.failedOnly);
+    this.noMoreFailures = false;
     this.choose();
   }
 }

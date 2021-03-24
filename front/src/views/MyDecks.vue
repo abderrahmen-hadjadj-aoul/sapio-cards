@@ -31,7 +31,9 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-function escapeRegExp(string) {
+import { Deck } from "../types";
+
+function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 @Component({})
@@ -46,7 +48,7 @@ export default class MyDecks extends Vue {
     this.$store.commit("resetDeck");
   }
 
-  searched(text) {
+  searched(text: string) {
     if (!this.search) return text;
     const escaped = escapeRegExp(this.search);
     const regex = new RegExp("" + escaped + "", "i");
@@ -59,7 +61,7 @@ export default class MyDecks extends Vue {
       decks = this.$store.state.favoriteDecks;
     }
     if (!this.search) return decks;
-    return decks.filter(deck =>
+    return decks.filter((deck: Deck) =>
       deck.name.toLowerCase().includes(this.search.toLowerCase())
     );
   }

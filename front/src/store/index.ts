@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
+import { Deck } from "../types";
 
 const baseURL = "https://localhost:8000";
 
@@ -20,10 +21,10 @@ export default new Vuex.Store({
     checkedLogStatus: false,
     isLogged: false,
     user: null,
-    decks: [],
+    decks: [] as Deck[],
     publicDecks: [],
     favoriteDecks: [],
-    deck: null,
+    deck: null as Deck | null,
     card: null
   },
   mutations: {

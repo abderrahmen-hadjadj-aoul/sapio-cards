@@ -72,9 +72,11 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { Card } from "../types";
+
 @Component({})
 export default class PlayDeck extends Vue {
-  index = null;
+  index: number | null = null;
   failedOnly = false;
   buttonDisabled = false;
   noMoreFailures = false;
@@ -101,8 +103,8 @@ export default class PlayDeck extends Vue {
   }
 
   get failures() {
-    const list = [];
-    this.deck.cards.forEach((card, index) => {
+    const list: number[] = [];
+    this.deck.cards.forEach((card: Card, index: number) => {
       if (!card.answers) return list.push(index);
       if (!card.answers.list) return list.push(index);
       let sinceFailure = 0;
@@ -146,9 +148,9 @@ export default class PlayDeck extends Vue {
       this.chooseAll();
       return;
     }
-    let value = null;
+    let value: number | null = null;
     const previous = this.index;
-    let index = null;
+    let index: number | null = null;
     console.log("choosing to max", max);
     do {
       value = Math.random() * max;
@@ -167,14 +169,12 @@ export default class PlayDeck extends Vue {
     }
     let value = 0;
     const previous = this.index;
-    let index = null;
+    let index: number | null = null;
     do {
       value = Math.random() * max;
       index = Math.floor(value);
     } while (index === previous && max > 1);
     this.index = index;
-    console.log("choose", value, index);
-    console.log("card", this.deck.cards[this.index]);
   }
 
   async yes() {

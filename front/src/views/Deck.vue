@@ -139,6 +139,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { Card } from "../types";
+
 @Component({})
 export default class Deck extends Vue {
   question = "";
@@ -147,7 +149,7 @@ export default class Deck extends Vue {
   showModalCardStatus = false;
   showModalDeckStatus = false;
 
-  card = null;
+  card: Card | null = null;
 
   editCardValue = { question: "", answer: "" };
   editDeckValue = { name: "", description: "" };
@@ -185,7 +187,7 @@ export default class Deck extends Vue {
   get failures() {
     if (!this.deck) return null;
     if (!this.deck.cards) return null;
-    return this.deck.cards.filter(item => {
+    return this.deck.cards.filter((item: Card) => {
       if (!item.answers) return;
       if (!item.answers.list) return;
       const last = item.answers.list.length - 1;
@@ -194,7 +196,7 @@ export default class Deck extends Vue {
   }
 
   get failed() {
-    return this.deck.cards.filter(item => {
+    return this.deck.cards.filter((item: Card) => {
       if (!item.answers) return true;
       if (!item.answers.list) return true;
       const list = item.answers.list;
@@ -274,7 +276,7 @@ export default class Deck extends Vue {
     }
   }
 
-  showModalCard(card) {
+  showModalCard(card: Card) {
     this.showModalCardStatus = true;
     this.card = card;
     this.editCardValue.question = card.question;
@@ -308,7 +310,7 @@ export default class Deck extends Vue {
     }
   }
 
-  percentageCard(card) {
+  percentageCard(card: Card) {
     const total = card.answers.failure + card.answers.success;
     let p = card.answers.failure / total;
     p = 100 * p;
@@ -316,7 +318,7 @@ export default class Deck extends Vue {
     return p;
   }
 
-  last(card) {
+  last(card: Card) {
     if (!card.answers) return;
     if (!card.answers.list) return;
     const list = card.answers.list.slice().reverse();

@@ -27,8 +27,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
-import Login from "@/components/Login";
-import Register from "./components/Register";
+import Login from "@/components/Login.vue";
+import Register from "@/components/Register.vue";
 
 @Component({
   components: { Login, Register }

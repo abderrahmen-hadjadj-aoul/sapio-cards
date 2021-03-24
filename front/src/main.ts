@@ -5,6 +5,10 @@ import store from "./store";
 import AtComponents from "at-ui";
 import "at-ui-style";
 
+//import Login from "./src/components/Login.vue";
+
+//Vue.component("Login", Login);
+
 Vue.config.productionTip = false;
 
 Vue.use(AtComponents);

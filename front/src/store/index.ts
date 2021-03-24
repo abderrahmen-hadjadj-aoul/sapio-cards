@@ -2,10 +2,14 @@ import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
 
-const request = axios.create({
-  baseURL: "https://localhost:8000",
+const baseURL = "https://localhost:8000";
+
+const apikey = localStorage.apikey;
+
+let request = axios.create({
+  baseURL,
   headers: {
-    "X-AUTH-TOKEN": "TEST-API-KEY"
+    "X-AUTH-TOKEN": apikey
   }
 });
 
@@ -13,6 +17,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    checkedLogStatus: false,
+    isLogged: false,
     user: null,
     decks: [],
     publicDecks: [],
@@ -24,6 +30,12 @@ export default new Vuex.Store({
     setCurrentUser(state, user) {
       state.user = user;
       console.log(user);
+    },
+    setLoggedStatus(state, isLogged) {
+      state.isLogged = isLogged;
+    },
+    setCheckedLogStatus(state, logStatus) {
+      state.checkedLogStatus = logStatus;
     },
     setMyDecks(state, decks) {
       state.decks = decks;
@@ -51,10 +63,43 @@ export default new Vuex.Store({
   actions: {
     // USER
     async getCurrentUser(context) {
-      const res = await request.get("/api/user/current");
-      const user = res.data.user;
-      console.log("user", user);
-      context.commit("setCurrentUser", user);
+      try {
+        const res = await request.get("/api/user/current");
+        const user = res.data.user;
+        context.commit("setCurrentUser", user);
+        context.commit("setLoggedStatus", true);
+      } catch (e) {
+        context.commit("setLoggedStatus", false);
+      }
+      context.commit("setCheckedLogStatus", true);
+    },
+    async register(context, credentials) {
+      try {
+        await request.post("/api/user", credentials);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    async login(context, credentials) {
+      try {
+        const res = await request.post(`/user/login`, credentials);
+        const user = res.data.user;
+        console.log("login", user);
+        this.commit("setCurrentUser", user);
+        context.commit("setLoggedStatus", true);
+        context.commit("setCheckedLogStatus", true);
+        localStorage.apikey = user.apikey;
+        request = axios.create({
+          baseURL,
+          headers: {
+            "X-AUTH-TOKEN": user.apikey
+          }
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
     },
     // DECKS
     async getPublicDecks(context) {

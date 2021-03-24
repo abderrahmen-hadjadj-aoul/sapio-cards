@@ -7,17 +7,51 @@
 
     <div id="nav">
       <router-link to="/">Home</router-link>
-      <router-link to="/browse">Browse</router-link>
-      <router-link to="/my-decks">My Decks</router-link>
+      <template v-if="isLogged">
+        <router-link to="/browse">Browse</router-link>
+        <router-link to="/my-decks">My Decks</router-link>
+      </template>
       <router-link to="/about">About</router-link>
     </div>
-    <router-view />
+    <router-view v-if="isLogged" />
+    <div class="not-logged" v-else-if="checkedLogStatus">
+      <Login />
+      <Register />
+    </div>
+    <div v-if="!checkedLogStatus">
+      Checking your account...
+    </div>
   </div>
 </template>
+
+<script lang="ts">
+import Vue from "vue";
+import { Component } from "vue-property-decorator";
+import Login from "@/components/Login";
+import Register from "./components/Register";
+
+@Component({
+  components: { Login, Register }
+})
+export default class Home extends Vue {
+  mounted() {
+    console.log("App mounted");
+  }
+
+  get isLogged() {
+    return this.$store.state.isLogged;
+  }
+
+  get checkedLogStatus() {
+    return this.$store.state.checkedLogStatus;
+  }
+}
+</script>
 
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap");
+
 #app {
   font-family: "Roboto", sans-serif;
   width: 800px;
@@ -59,6 +93,16 @@ h1.brand {
     &.router-link-exact-active {
       color: #389e17;
     }
+  }
+}
+
+.not-logged {
+  display: flex;
+  & > * {
+    &::first {
+      margin-right: 5px;
+    }
+    flex: 1;
   }
 }
 </style>

@@ -39,7 +39,6 @@
       </at-button>
     </div>
 
-
     <h1>Deck: {{ deck.name }}</h1>
     <p>Failures: {{ failures }} / {{ total }} - {{ percentage }}%</p>
     <p>{{ deck.description }}</p>

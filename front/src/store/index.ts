@@ -102,6 +102,11 @@ export default new Vuex.Store({
         return false;
       }
     },
+    logout(context) {
+      this.commit("setCurrentUser", null);
+      context.commit("setLoggedStatus", false);
+      localStorage.apikey = undefined;
+    },
     // DECKS
     async getPublicDecks(context) {
       const res = await request.get("/api/decks");

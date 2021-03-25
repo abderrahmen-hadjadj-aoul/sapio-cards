@@ -12,6 +12,11 @@
         <router-link to="/my-decks">My Decks</router-link>
       </template>
       <router-link to="/about">About</router-link>
+      <template v-if="isLogged">
+        <router-link to="/" @click.native="logout">
+          Logout ({{ user.email }})
+        </router-link>
+      </template>
     </div>
     <router-view v-if="isLogged" />
     <div class="not-logged" v-else-if="checkedLogStatus">
@@ -44,6 +49,14 @@ export default class Home extends Vue {
 
   get checkedLogStatus() {
     return this.$store.state.checkedLogStatus;
+  }
+
+  get user() {
+    return this.$store.state.user;
+  }
+
+  async logout() {
+    this.$store.dispatch("logout");
   }
 }
 </script>

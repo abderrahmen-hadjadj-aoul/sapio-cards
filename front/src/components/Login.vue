@@ -7,6 +7,15 @@
     <label for="password">Password</label>
     <at-input id="password" type="password" v-model="password" />
     <at-button type="primary" @click="login">Login</at-button>
+    <br />
+    <br />
+    <p>
+      Don't have an account ?
+      <br />
+      <a href="/register">
+        Create an account now !
+      </a>
+    </p>
   </div>
 </template>
 

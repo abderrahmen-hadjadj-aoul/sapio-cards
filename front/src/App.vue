@@ -21,7 +21,6 @@
     <router-view v-if="isLogged" />
     <div class="not-logged" v-else-if="checkedLogStatus">
       <Login />
-      <Register />
     </div>
     <div v-if="!checkedLogStatus">
       Checking your account...

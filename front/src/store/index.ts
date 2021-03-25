@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import axios from "axios";
 import { Deck } from "../types";
 
-const baseURL = "https://localhost:8000";
+const baseURL = process.env.VUE_APP_API_URL;
 
 const apikey = localStorage.apikey;
 

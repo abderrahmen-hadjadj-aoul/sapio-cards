@@ -6,13 +6,24 @@ import { Deck } from "../types";
 const baseURL = process.env.VUE_APP_API_URL;
 
 const apikey = localStorage.apikey;
+const headers = {};
+if (apikey) {
+  headers["X-AUTH-TOKEN"] = apikey;
+}
 
 let request = axios.create({
   baseURL,
-  headers: {
-    "X-AUTH-TOKEN": apikey
-  }
+  headers
 });
+
+function setHeader(user) {
+  request = axios.create({
+    baseURL,
+    headers: {
+      "X-AUTH-TOKEN": user.apikey
+    }
+  });
+}
 
 Vue.use(Vuex);
 
@@ -65,10 +76,12 @@ export default new Vuex.Store({
     // USER
     async getCurrentUser(context) {
       try {
-        const res = await request.get("/api/user/current");
+        const res = await request.get("/user/current");
         const user = res.data.user;
         context.commit("setCurrentUser", user);
         context.commit("setLoggedStatus", true);
+        localStorage.apikey = user.apikey;
+        setHeader(user);
       } catch (e) {
         context.commit("setLoggedStatus", false);
       }
@@ -91,12 +104,7 @@ export default new Vuex.Store({
         context.commit("setLoggedStatus", true);
         context.commit("setCheckedLogStatus", true);
         localStorage.apikey = user.apikey;
-        request = axios.create({
-          baseURL,
-          headers: {
-            "X-AUTH-TOKEN": user.apikey
-          }
-        });
+        setHeader(user);
         return user;
       } catch (e) {
         console.log("login error", e.response);
@@ -104,10 +112,11 @@ export default new Vuex.Store({
         return { error: true, message };
       }
     },
-    logout(context) {
+    async logout(context) {
+      await request.get("/logout");
       this.commit("setCurrentUser", null);
       context.commit("setLoggedStatus", false);
-      localStorage.apikey = undefined;
+      localStorage.apikey = "";
     },
     // DECKS
     async getPublicDecks(context) {

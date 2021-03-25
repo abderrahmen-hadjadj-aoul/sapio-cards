@@ -15,12 +15,12 @@ use App\Repository\UserRepository;
 class UserController extends AbstractController
 {
     /**
-     * @Route("/api/user/current", name="user")
+     * @Route("/user/current", name="user")
      */
     public function index(): Response
     {
-        $this->denyAccessUnlessGranted("IS_AUTHENTICATED_FULLY");
         $user = $this->getUser()->toJson();
+        $user["apikey"] = $this->getUser()->getApikey();
         $res = [
             "user" => $user
         ];
@@ -41,6 +41,14 @@ class UserController extends AbstractController
 
         if(!$passwordValid) {
           $res = ["message" => "Wrong password"];
+          $jsonRes = new JsonResponse($res);
+          $jsonRes->setStatusCode(401);
+          return $jsonRes;
+        }
+
+        $isVerified = $user->getIsVerified();
+        if (!$isVerified) {
+          $res = ["message" => "Account is not verified, check your emails."];
           $jsonRes = new JsonResponse($res);
           $jsonRes->setStatusCode(401);
           return $jsonRes;

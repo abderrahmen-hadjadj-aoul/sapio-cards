@@ -68,6 +68,25 @@ class RegistrationController extends AbstractController
     }
 
     /**
+    * @Route("/register/send-email/{user}", name="send_email")
+     */
+    public function sendEmail(Request $request, User $user): Response
+    {
+        if ($user->getIsVerified()) {
+            return $this->redirectToRoute("home");
+        }
+        $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+            (new TemplatedEmail())
+                ->from(new Address('mailer@your-domain.com', 'Acme Mail Bot'))
+                ->to($user->getEmail())
+                ->subject('Please Confirm your Email')
+                ->htmlTemplate('registration/confirmation_email.html.twig')
+        );
+        $this->addFlash('success', 'Verify you emails before to login');
+        return $this->redirectToRoute("app_login");
+    }
+
+    /**
      * @Route("/verify/email", name="app_verify_email")
      */
     public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
@@ -96,6 +115,6 @@ class RegistrationController extends AbstractController
         // @TODO Change the redirect on success and handle or remove the flash message in your templates
         $this->addFlash('success', 'Your email address has been verified.');
 
-        return $this->redirectToRoute('app_register');
+        return $this->redirectToRoute('app_login');
     }
 }

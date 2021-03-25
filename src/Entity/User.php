@@ -42,7 +42,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $isVerified;
+    private $isVerified = false;
 
     /**
      * @ORM\OneToMany(targetEntity=Deck::class, mappedBy="owner", orphanRemoval=true)
@@ -170,6 +170,7 @@ class User implements UserInterface
             "id" => $this->id,
             "email" => $this->email,
             "roles" => $this->roles,
+            "verified" => $this->isVerified,
         ];
     }
 

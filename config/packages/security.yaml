@@ -20,6 +20,8 @@ security:
                 authenticators:
                     - App\Security\TokenAuthenticator
         main:
+            pattern: ^/
+            user_checker: App\Security\UserChecker
             anonymous: true
             lazy: true
             provider: app_user_provider

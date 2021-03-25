@@ -218,9 +218,11 @@ class DecksController extends AbstractController
      */
     public function findOneWithCard(DeckRepository $deckRepo, Deck $deck): Response
     {
-        $user = $this->getUser();
 
-        if ($deck->getOwner()->getId() != $user->getId()) {
+        $user = $this->getUser();
+        $isPrivate = !$deck->getPublished();
+
+        if ($isPrivate && $deck->getOwner()->getId() != $user->getId()) {
             $message = ["message" => "You are not authorized to browse this deck"];
             $res = new JsonResponse($message);
             $res->setStatusCode(401);

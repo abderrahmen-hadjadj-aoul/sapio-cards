@@ -27,6 +27,7 @@
         :disabled="disableFavorite"
         :type="typeFavorite"
         @click="toogleFavorites"
+        v-if="enableFavoriteButton"
       >
         <i class="icon icon-star-on"></i>
         &nbsp;&nbsp;
@@ -226,6 +227,14 @@ export default class Deck extends Vue {
       return "warning";
     }
     return "";
+  }
+
+  get enableFavoriteButton() {
+    const user = this.$store.state.user;
+    if (this.deck.owner.id === user.id) {
+      return false;
+    }
+    return true;
   }
 
   async createCard() {

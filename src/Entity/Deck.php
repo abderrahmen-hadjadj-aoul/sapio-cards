@@ -140,6 +140,7 @@ class Deck
           && $options["publishedDecks"];
         $json = [
             "id" => $this->getId(),
+            "owner" => $this->getOwner()->toJson(),
             "name" => $this->name,
             "description" => $this->description,
             "published" => $this->published,

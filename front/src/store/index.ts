@@ -97,9 +97,11 @@ export default new Vuex.Store({
             "X-AUTH-TOKEN": user.apikey
           }
         });
-        return true;
+        return user;
       } catch (e) {
-        return false;
+        console.log("login error", e.response);
+        const message = e.response.data.message;
+        return { error: true, message };
       }
     },
     logout(context) {

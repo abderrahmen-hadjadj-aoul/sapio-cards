@@ -42,7 +42,7 @@ class UserController extends AbstractController
         if(!$passwordValid) {
           $res = ["message" => "Wrong password"];
           $jsonRes = new JsonResponse($res);
-          $jsonRed->setStatusCode(401);
+          $jsonRes->setStatusCode(401);
           return $jsonRes;
         }
 

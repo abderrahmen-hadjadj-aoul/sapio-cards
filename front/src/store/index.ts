@@ -7,8 +7,9 @@ const saver = savers("web");
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
+    online: true,
     checkedLogStatus: false,
     isLogged: false,
     user: null,
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     card: null
   },
   mutations: {
+    setOnlineStatus(state, status) {
+      state.online = status;
+    },
     setCurrentUser(state, user) {
       state.user = user;
       console.log(user);
@@ -174,3 +178,12 @@ export default new Vuex.Store({
   },
   modules: {}
 });
+
+export default store;
+
+function updateOnlineStatus() {
+  store.commit("setOnlineStatus", navigator.onLine);
+}
+updateOnlineStatus();
+window.addEventListener("online", updateOnlineStatus);
+window.addEventListener("offline", updateOnlineStatus);

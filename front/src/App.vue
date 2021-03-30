@@ -1,5 +1,10 @@
 <template>
   <div id="app">
+
+    <div id="top-message" v-if="!online">
+      You are offline
+    </div>
+
     <h1 class="brand">
       SAPIO CARDS
       <br />
@@ -43,6 +48,10 @@ export default class Home extends Vue {
     console.log("App mounted");
   }
 
+  get online() {
+    return this.$store.state.online;
+  }
+
   get isLogged() {
     return this.$store.state.isLogged;
   }
@@ -64,6 +73,14 @@ export default class Home extends Vue {
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap");
+
+#top-message {
+  padding: 5px;
+  text-align: center;
+  color: #C82A1D;
+  background-color: #FFE3E0;
+  font-weight: bold;
+}
 
 #app {
   font-family: "Roboto", sans-serif;

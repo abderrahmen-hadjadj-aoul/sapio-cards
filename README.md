@@ -15,6 +15,10 @@ Flash card web app to learn efficiently
 `cd front`
 `yarn build`
 
+# Test
+
+make tests
+
 # Run locally
 
 docker-compose up

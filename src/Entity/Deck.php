@@ -145,6 +145,7 @@ class Deck
             "description" => $this->description,
             "published" => $this->published,
             "version" => $this->version,
+            "parent" => $this->parent ? $this->parent->toJson() : null,
         ];
         if ($withCards) {
             $cards = $this->getCards()->toArray();

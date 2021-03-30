@@ -184,7 +184,7 @@ class DecksController extends AbstractController
 
         $user = $this->getUser();
 
-        $isOwner = $user->getId() === $card->getOwner()->getId();
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
         if (!$isOwner) {
             $body = ["message" => "You are not authorized to update this deck"];
             $res = new JsonResponse($body);

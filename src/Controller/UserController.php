@@ -21,13 +21,18 @@ class UserController extends AbstractController
     {
         $user = $this->getUser();
         $hasToken = $request->headers->has('X-AUTH-TOKEN');
+        $type = "login-password";
         if (!$user && $hasToken) {
             $token = $request->headers->get('X-AUTH-TOKEN');
             $user = $ur->loadUserByApiKey($token);
+            $type = "token";
         }
         if (!$user) {
           $body = [
-              "error" => "No user found."
+              "error" => "No user found",
+              "type" => $type,
+              "token" => $request->headers->get("x-auth-token"),
+              "token2" => $request->headers->get("X-AUTH-TOKEN"),
           ];
           $res = new JsonResponse($body);
           $res->setStatusCode(401);

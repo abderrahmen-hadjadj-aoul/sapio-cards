@@ -4,10 +4,7 @@ import router from "./router";
 import store from "./store";
 import AtComponents from "at-ui";
 import "at-ui-style";
-
-//import Login from "./src/components/Login.vue";
-
-//Vue.component("Login", Login);
+import "@/assets/global.scss";
 
 Vue.config.productionTip = false;
 

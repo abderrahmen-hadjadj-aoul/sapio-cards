@@ -1,29 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import axios from "axios";
 import { Deck } from "../types";
+import savers from "../savers/index";
 
-const baseURL = process.env.VUE_APP_API_URL;
-
-const apikey = localStorage.apikey;
-const headers = {};
-if (apikey) {
-  headers["X-AUTH-TOKEN"] = apikey;
-}
-
-let request = axios.create({
-  baseURL,
-  headers
-});
-
-function setHeader(user) {
-  request = axios.create({
-    baseURL,
-    headers: {
-      "X-AUTH-TOKEN": user.apikey
-    }
-  });
-}
+const saver = savers("web");
 
 Vue.use(Vuex);
 
@@ -76,12 +56,10 @@ export default new Vuex.Store({
     // USER
     async getCurrentUser(context) {
       try {
-        const res = await request.get("/user/current");
-        const user = res.data.user;
+        const user = await saver.getCurrentUser();
         context.commit("setCurrentUser", user);
         context.commit("setLoggedStatus", true);
         localStorage.apikey = user.apikey;
-        setHeader(user);
       } catch (e) {
         context.commit("setLoggedStatus", false);
       }
@@ -89,7 +67,7 @@ export default new Vuex.Store({
     },
     async register(context, credentials) {
       try {
-        await request.post("/api/user", credentials);
+        await saver.register(credentials);
         return true;
       } catch (e) {
         return false;
@@ -97,14 +75,12 @@ export default new Vuex.Store({
     },
     async login(context, credentials) {
       try {
-        const res = await request.post(`/user/login`, credentials);
-        const user = res.data.user;
+        const user = await saver.login(credentials);
         console.log("login", user);
         this.commit("setCurrentUser", user);
         context.commit("setLoggedStatus", true);
         context.commit("setCheckedLogStatus", true);
         localStorage.apikey = user.apikey;
-        setHeader(user);
         return user;
       } catch (e) {
         console.log("login error", e.response);
@@ -113,42 +89,35 @@ export default new Vuex.Store({
       }
     },
     async logout(context) {
-      await request.get("/logout");
+      await saver.logout();
       this.commit("setCurrentUser", null);
       context.commit("setLoggedStatus", false);
       localStorage.apikey = "";
     },
     // DECKS
     async getPublicDecks(context) {
-      const res = await request.get("/api/decks");
-      const decks = res.data.decks;
+      const decks = await saver.getPublicDecks();
       context.commit("setPublicDecks", decks);
     },
     async getMyDecks(context) {
-      const res = await request.get("/api/decks/mine");
-      const decks = res.data.decks;
+      const decks = await saver.getMyDecks();
       context.commit("setMyDecks", decks);
     },
     async getFavoriteDecks(context) {
-      const res = await request.get("/api/decks/favorites");
-      const decks = res.data.decks;
+      const decks = await saver.getFavoriteDecks();
       context.commit("setFavoriteDecks", decks);
     },
     async getDeck(context, deckid) {
-      const res = await request.get(`/api/decks/${deckid}/cards?published=1`);
-      const deck = res.data.deck;
+      const deck = await saver.getDeck(deckid);
       context.commit("setDeck", deck);
     },
     async createDeck(context, deck) {
-      const res = await request.post(`/api/decks`, deck);
-      const newDeck = res.data.deck;
+      const newDeck = await saver.createDeck(deck);
       context.commit("setDeck", newDeck);
     },
     async editDeck(context, data) {
-      const deckid = data.deck.id;
-      const patch = data.patch;
       try {
-        await request.patch(`/api/decks/${deckid}`, patch);
+        await saver.editDeck(data);
         data.deck.name = data.patch.name;
         data.deck.description = data.patch.description;
         return true;
@@ -158,37 +127,27 @@ export default new Vuex.Store({
       }
     },
     async publishDeck(context, deck) {
-      const deckid = deck.id;
-      const published = await request.post(`/api/decks/${deckid}/published`);
+      const published = await saver.publishDeck(deck);
       deck.publishedDecks.push(published);
       return { success: true };
     },
     async addToFavorites(context, deck) {
-      const deckid = deck.id;
-      const body = { deckid };
-      await request.post(`/api/decks/favorites`, body);
+      await saver.addToFavorites(deck);
       deck.favorite = true;
       return { success: true };
     },
     async removeFromFavorites(context, deck) {
-      const deckid = deck.id;
-      await request.delete(`/api/decks/favorites/${deckid}`);
+      await saver.removeFromFavorites(deck);
       deck.favorite = false;
       return { success: true };
     },
     // CARDS
     async createCard(context, data) {
-      const deckid = data.deck.id;
-      const card = data.card;
-      const res = await request.post(`/api/decks/${deckid}/cards`, card);
-      const newCard = res.data.card;
+      const newCard = await saver.createCard(data);
       data.deck.cards.push(newCard);
     },
     async editCard(context, data) {
-      const cardid = data.card.id;
-      const patch = data.patch;
       try {
-        await request.patch(`/api/cards/${cardid}`, patch);
         data.card.question = data.patch.question;
         data.card.answer = data.patch.answer;
         return true;
@@ -198,11 +157,7 @@ export default new Vuex.Store({
       }
     },
     async setAnswer(context, data) {
-      const cardid = data.card.id;
-      const body = {
-        type: data.type
-      };
-      await request.post(`/api/cards/${cardid}/answer`, body);
+      await saver.setAnswer(data);
       if (!data.card.answers) {
         data.card.answers = {
           success: 0,

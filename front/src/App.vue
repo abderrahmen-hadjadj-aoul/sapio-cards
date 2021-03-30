@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <h1 class="brand">
-      Sapio Cards
+      SAPIO CARDS
+      <br />
       <span>Learn efficiently with the flash card technique</span>
     </h1>
 
@@ -13,7 +14,7 @@
       </template>
       <router-link to="/about">About</router-link>
       <template v-if="isLogged">
-        <router-link to="/" @click.native="logout">
+        <router-link to="/logout" @click.native="logout">
           Logout ({{ user.email }})
         </router-link>
       </template>
@@ -71,18 +72,15 @@ export default class Home extends Vue {
 }
 
 h1.brand {
-  font-family: "Dancing Script", cursive;
-  margin-top: 20px;
-  padding: 15px;
-  font-size: 25px;
-  background-color: hsl(0, 0%, 95%);
+  padding: 10px;
+  font-size: 18px;
   text-align: center;
   color: #1b9638;
+  font-weight: normal;
+  border-bottom: 2px solid hsl(0, 0%, 90%);
+  margin-bottom: 25px;
   span {
-    font-weight: normal;
-    font-family: "Roboto", sans-serif;
-    font-size: 17px;
-    font-style: italic;
+    font-size: 14px;
     color: hsl(0, 0%, 40%);
   }
 }
@@ -93,17 +91,19 @@ h1.brand {
   a {
     display: inline-block;
     margin-right: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
-    border-bottom: 2px solid hsl(0, 0%, 80%);
+    background-color: hsl(0, 0%, 96%);
+    border-bottom: 2px solid transparent;
     &:hover {
       background-color: $hover-bg;
       color: $hover;
     }
     &.router-link-exact-active {
       color: #389e17;
+      border-color: #389e17;
     }
   }
 }

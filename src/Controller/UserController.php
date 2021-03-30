@@ -17,12 +17,26 @@ class UserController extends AbstractController
     /**
      * @Route("/user/current", name="user")
      */
-    public function index(): Response
+    public function index(Request $request, UserRepository $ur): Response
     {
-        $user = $this->getUser()->toJson();
-        $user["apikey"] = $this->getUser()->getApikey();
+        $user = $this->getUser();
+        $hasToken = $request->headers->has('X-AUTH-TOKEN');
+        if (!$user && $hasToken) {
+            $token = $request->headers->get('X-AUTH-TOKEN');
+            $user = $ur->loadUserByApiKey($token);
+        }
+        if (!$user) {
+          $body = [
+              "error" => "No user found."
+          ];
+          $res = new JsonResponse($body);
+          $res->setStatusCode(401);
+          return $res;
+        }
+        $userJson = $user->toJson();
+        $userJson["apikey"] = $user->getApikey();
         $res = [
-            "user" => $user
+            "user" => $userJson
         ];
         return new JsonResponse($res);
     }
@@ -36,6 +50,12 @@ class UserController extends AbstractController
         $data = $req->toArray();
 
         $user = $userRep->findOneBy(["email" => $data["email"]]);
+        if(!$user) {
+          $res = ["message" => "User ". $data["email"] . " not found"];
+          $jsonRes = new JsonResponse($res);
+          $jsonRes->setStatusCode(404);
+          return $jsonRes;
+        }
 
         $passwordValid = $encoder->isPasswordValid($user, $data["password"]);
 

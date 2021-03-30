@@ -9,3 +9,5 @@ tests:
 	symfony php bin/phpunit --testdox $@
 .PHONY: tests
 
+build:
+	cd front && yarn build

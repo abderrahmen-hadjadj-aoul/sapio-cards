@@ -24,8 +24,15 @@
     <section class="deck" v-for="deck in decks" :key="deck.id">
       <router-link :to="'/deck/' + deck.id">
         <span v-html="searched(deck.name)" class="name"></span>
+        <span class="versions" v-if="deck.publishedDecks.length > 0">
+          {{ deck.publishedDecks.length }} versions
+        </span>
       </router-link>
-      <div class="delete" @click="deleteDeck(deck)">
+      <div
+        class="delete"
+        :class="{ disabled: deck.publishedDecks.length > 0 }"
+        @click="deleteDeck(deck)"
+      >
         <i class="icon icon-trash"></i>
       </div>
     </section>
@@ -70,6 +77,13 @@ export default class MyDecks extends Vue {
   }
 
   async deleteDeck(deck: Deck) {
+    if (deck.publishedDecks.length > 0) {
+      this.$Notify.error({
+        title: "Deletion",
+        message: "You can't delete a deck that has been publised."
+      });
+      return;
+    }
     try {
       const res = await this.$store.dispatch("deleteDeck", deck);
       this.$Notify.success({
@@ -78,9 +92,12 @@ export default class MyDecks extends Vue {
       });
     } catch (e) {
       console.error(e);
+      const data = e.response.data;
+      const message = data.message;
+      console.log(data);
       this.$Notify.error({
         title: "Deletion",
-        message: `Error during deck deletion ${deck.name}\n` + e
+        message: `Error during deck deletion ${deck.name}\n` + message
       });
     }
   }
@@ -123,9 +140,15 @@ section {
     cursor: pointer;
     transition: 0.3s;
     margin-left: 10px;
+    &.disabled {
+      color: gray;
+    }
     &:hover {
       color: white;
       background-color: red;
+      &.disabled {
+        background-color: gray;
+      }
     }
   }
 }
@@ -136,5 +159,15 @@ section {
 
 .count {
   margin-top: 5px;
+}
+
+.versions {
+  display: inline-block;
+  margin-left: 20px;
+  border: 1px solid hsl(0, 0%, 70%);
+  padding: 3px;
+  padding-left: 7px;
+  padding-right: 7px;
+  border-radius: 5px;
 }
 </style>

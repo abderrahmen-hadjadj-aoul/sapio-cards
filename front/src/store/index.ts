@@ -135,7 +135,7 @@ const store = new Vuex.Store({
       }
     },
     async deleteDeck(context, deck) {
-      const res = saver.deleteDeck(deck);
+      const res = await saver.deleteDeck(deck);
       context.commit("removeDeck", deck);
       return res;
     },

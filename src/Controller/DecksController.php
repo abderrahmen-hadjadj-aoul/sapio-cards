@@ -44,8 +44,11 @@ class DecksController extends AbstractController
         $user = $this->getUser();
 
         $decks = $deckRepo->findBy(['owner' => $user, 'published' => false]);
+        $options = [
+            "publishedDecks" => true
+        ];
         $res = [
-            "decks" => array_map(fn($deck) => $deck->toJson(), $decks)
+            "decks" => array_map(fn($deck) => $deck->toJson($options), $decks)
         ];
 
         return new JsonResponse($res);
@@ -240,6 +243,17 @@ class DecksController extends AbstractController
             $body = ["message" => "You are not authorized to delete this deck"];
             $res = new JsonResponse($body);
             $res->setStatusCode(401);
+            return $res;
+        }
+
+        // Check published decks
+        $countPublished = $deck->getDecks()->count();
+        $hasPublishedDecks = $countPublished > 0;
+        if ($hasPublishedDecks) {
+            $body = ["message" => "Deck have " . $countPublished . " decks(s) published."
+            . " You can't delete this deck."];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(403);
             return $res;
         }
 

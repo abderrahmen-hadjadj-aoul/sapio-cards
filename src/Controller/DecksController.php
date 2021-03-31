@@ -130,6 +130,13 @@ class DecksController extends AbstractController
     public function findOne(DeckRepository $deckRepo, Deck $deck): Response
     {
 
+        if (!$deck) {
+            $body = ["message" => "Deck not found"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(404);
+            return $res;
+        }
+
         $user = $this->getUser();
 
         if ($deck->getOwner()->getId() != $user->getId()) {
@@ -214,10 +221,53 @@ class DecksController extends AbstractController
     }
 
     /**
+     * @Route("/decks/{deck}", name="decks_delete", methods={"DELETE"})
+     */
+    public function deleteDeck(Request $req, UserRepository $userRepo, Deck $deck): Response
+    {
+
+        if (!$deck) {
+            $body = ["message" => "Deck with not found"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(404);
+            return $res;
+        }
+
+        $user = $this->getUser();
+
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
+        if (!$isOwner) {
+            $body = ["message" => "You are not authorized to delete this deck"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(401);
+            return $res;
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $entityManager->remove($deck);
+        $entityManager->flush();
+
+        $res = [
+            "deleted" => true
+        ];
+
+        return new JsonResponse($res);
+
+    }
+
+    /**
      * @Route("/decks/{deck}/cards", name="decks_find_by_id_with_cards", methods={"GET"})
      */
     public function findOneWithCard(DeckRepository $deckRepo, Deck $deck): Response
     {
+
+        if (!$deck) {
+            $body = ["message" => "Card not found"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(404);
+            return $res;
+        }
 
         $user = $this->getUser();
         $isPrivate = !$deck->getPublished();
@@ -279,6 +329,40 @@ class DecksController extends AbstractController
     }
 
     /**
+     * @Route("/cards/{card}", name="card_get", methods={"GET"})
+     */
+    public function getCard(Request $req,
+      DeckRepository $deckRepo,
+      UserRepository $userRepo,
+      Card $card): Response
+    {
+
+        if (!$card) {
+            $body = ["message" => "Card not found"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(404);
+            return $res;
+        }
+
+        $user = $this->getUser();
+        $deck = $card->getDeck();
+
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
+        if (!$isOwner && !$deck->getPublished()) {
+            $body = ["message" => "You are not authorized to update this card"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(401);
+            return $res;
+        }
+
+        $res = [
+            "card" => $card->toJson()
+        ];
+
+        return new JsonResponse($res);
+    }
+
+    /**
      * @Route("/cards/{card}", name="card_update", methods={"PATCH"})
      */
     public function patchCard(Request $req,
@@ -311,6 +395,44 @@ class DecksController extends AbstractController
         }
 
         $entityManager->persist($card);
+        $entityManager->flush();
+
+        $res = [
+            "card" => $card->toJson()
+        ];
+
+        return new JsonResponse($res);
+    }
+
+    /**
+     * @Route("/cards/{card}", name="card_delete", methods={"DELETE"})
+     */
+    public function deleteCard(Request $req,
+      DeckRepository $deckRepo,
+      UserRepository $userRepo,
+      Card $card): Response
+    {
+        if (!$card) {
+            $body = ["message" => "Card not found"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(404);
+            return $res;
+        }
+
+        $user = $this->getUser();
+        $deck = $card->getDeck();
+
+        $isOwner = $user->getId() === $deck->getOwner()->getId();
+        if (!$isOwner || $deck->getPublished()) {
+            $body = ["message" => "You are not authorized to delete this card"];
+            $res = new JsonResponse($body);
+            $res->setStatusCode(401);
+            return $res;
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $entityManager->remove($card);
         $entityManager->flush();
 
         $res = [

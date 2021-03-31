@@ -19,6 +19,8 @@ export default abstract class Saver {
 
   abstract async editDeck(data);
 
+  abstract async deleteDeck(data);
+
   abstract async publishDeck(deck);
 
   abstract async addToFavorites(deck);

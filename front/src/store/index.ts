@@ -37,6 +37,10 @@ const store = new Vuex.Store({
       state.decks = decks;
       console.log(decks);
     },
+    removeDeck(state, deck) {
+      const index = state.decks.indexOf(deck);
+      state.decks.splice(index, 1);
+    },
     setFavoriteDecks(state, decks) {
       state.favoriteDecks = decks;
       console.log(decks);
@@ -129,6 +133,11 @@ const store = new Vuex.Store({
         console.error("editDeck error", e);
         return false;
       }
+    },
+    async deleteDeck(context, deck) {
+      const res = saver.deleteDeck(deck);
+      context.commit("removeDeck", deck);
+      return res;
     },
     async publishDeck(context, deck) {
       const published = await saver.publishDeck(deck);

@@ -85,6 +85,11 @@ export default class WebSaver extends Saver {
     await request.patch(`/api/decks/${deckid}`, patch);
   }
 
+  async deleteDeck(deck) {
+    const deckid = deck.id;
+    await request.delete(`/api/decks/${deckid}`);
+  }
+
   async publishDeck(deck) {
     const deckid = deck.id;
     const published = await request.post(`/api/decks/${deckid}/published`);

@@ -25,6 +25,9 @@
       <router-link :to="'/deck/' + deck.id">
         <span v-html="searched(deck.name)" class="name"></span>
       </router-link>
+      <div class="delete" @click="deleteDeck(deck)">
+        <i class="icon icon-trash"></i>
+      </div>
     </section>
   </div>
 </template>
@@ -65,6 +68,22 @@ export default class MyDecks extends Vue {
       deck.name.toLowerCase().includes(this.search.toLowerCase())
     );
   }
+
+  async deleteDeck(deck: Deck) {
+    try {
+      const res = await this.$store.dispatch("deleteDeck", deck);
+      this.$Notify.success({
+        title: "Deletion",
+        message: `Deck ${deck.name} deleted`
+      });
+    } catch (e) {
+      console.error(e);
+      this.$Notify.error({
+        title: "Deletion",
+        message: `Error during deck deletion ${deck.name}\n` + e
+      });
+    }
+  }
 }
 </script>
 
@@ -79,19 +98,34 @@ section {
 }
 
 .deck {
-  border-radius: 5px;
-  border: 1px solid hsl(0, 0%, 80%);
-  transition: 0.3s;
+  display: flex;
+  align-items: center;
   a {
+    flex: 1;
+    transition: 0.3s;
+    border-radius: 5px;
+    border: 1px solid hsl(0, 0%, 80%);
     display: block;
     padding: 10px;
     transition: 0.3s;
   }
-  &:hover {
+  a:hover {
     border-color: $hover;
     background-color: $hover-bg;
-    a {
-      color: $hover;
+    color: $hover;
+  }
+  .delete {
+    color: red;
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 10px;
+    &:hover {
+      color: white;
+      background-color: red;
     }
   }
 }

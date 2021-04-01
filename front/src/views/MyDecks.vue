@@ -21,21 +21,23 @@
     <p v-if="search" class="count">Found {{ decks.length }} deck(s)</p>
     <br />
 
-    <section class="deck" v-for="deck in decks" :key="deck.id">
-      <router-link :to="'/deck/' + deck.id">
-        <span v-html="searched(deck.name)" class="name"></span>
-        <span class="versions" v-if="deck.publishedDecks.length > 0">
-          {{ deck.publishedDecks.length }} versions
-        </span>
-      </router-link>
-      <div
-        class="delete"
-        :class="{ disabled: deck.publishedDecks.length > 0 }"
-        @click="deleteDeck(deck)"
-      >
-        <i class="icon icon-trash"></i>
-      </div>
-    </section>
+    <div id="decks">
+      <section class="deck" v-for="deck in decks" :key="deck.id">
+        <router-link :to="'/deck/' + deck.id">
+          <span v-html="searched(deck.name)" class="name"></span>
+          <span class="versions" v-if="deck.publishedDecks.length > 0">
+            {{ deck.publishedDecks.length }} versions
+          </span>
+        </router-link>
+        <div
+          class="delete"
+          :class="{ disabled: deck.publishedDecks.length > 0 }"
+          @click="deleteDeck(deck)"
+        >
+          <i class="icon icon-trash"></i>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -51,10 +53,9 @@ export default class MyDecks extends Vue {
   search = "";
   type = "mine";
 
-  mounted() {
-    console.log("mounted");
-    this.$store.dispatch("getMyDecks");
-    this.$store.dispatch("getFavoriteDecks");
+  async mounted() {
+    const mine = this.$store.dispatch("getMyDecks");
+    const fav = this.$store.dispatch("getFavoriteDecks");
     this.$store.commit("resetDeck");
   }
 

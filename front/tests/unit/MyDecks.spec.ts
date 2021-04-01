@@ -51,14 +51,11 @@ describe("MyDecks.vue", () => {
 
   beforeAll(() => {
     mutations = {
-      async resetDeck() {
-        return true;
-      }
+      resetDeck: jest.fn()
     };
     actions = {
       getMyDecks: jest.fn(),
       getFavoriteDecks: jest.fn(),
-      resetDeck: jest.fn(),
       deleteDeck: jest.fn()
     };
     store = new Vuex.Store({
@@ -78,6 +75,7 @@ describe("MyDecks.vue", () => {
     const deckList = decksDiv.findAll("section.deck");
     expect(actions.getMyDecks).toHaveBeenCalled();
     expect(actions.getFavoriteDecks).toHaveBeenCalled();
+    expect(mutations.resetDeck).toHaveBeenCalled();
     expect(deckList.length).toEqual(store.state.decks.length);
     deckList.wrappers.forEach(async (deckWrapper, index) => {
       const deck = store.state.decks[index];

@@ -16,6 +16,7 @@ export interface Deck {
   name: string;
   description: string;
   cards: Card[];
+  publishedDecks: Deck[];
 }
 
 declare module "vue/types/vue" {

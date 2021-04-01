@@ -30,7 +30,6 @@ export default class MyDecks extends Vue {
   search = "";
 
   mounted() {
-    console.log("mounted");
     this.$store.dispatch("getPublicDecks");
     this.$store.commit("resetDeck");
   }

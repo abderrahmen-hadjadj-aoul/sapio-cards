@@ -10,6 +10,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     online: true,
+    checkingLogStatus: false,
     checkedLogStatus: false,
     isLogged: false,
     user: null,
@@ -20,6 +21,9 @@ const store = new Vuex.Store({
     card: null
   },
   mutations: {
+    setCheckingLogStatus(state, status) {
+      state.checkingLogStatus = status;
+    },
     setOnlineStatus(state, status) {
       state.online = status;
     },
@@ -63,6 +67,7 @@ const store = new Vuex.Store({
   actions: {
     // USER
     async getCurrentUser(context) {
+      context.commit("setCheckingLogStatus", true);
       try {
         const user = await saver.getCurrentUser();
         context.commit("setCurrentUser", user);
@@ -72,6 +77,7 @@ const store = new Vuex.Store({
         context.commit("setLoggedStatus", false);
       }
       context.commit("setCheckedLogStatus", true);
+      context.commit("setCheckingLogStatus", false);
     },
     async register(context, credentials) {
       try {

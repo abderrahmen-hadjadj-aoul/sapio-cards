@@ -10,8 +10,6 @@ Vue.config.productionTip = false;
 
 Vue.use(AtComponents);
 
-store.dispatch("getCurrentUser");
-
 new Vue({
   router,
   store,

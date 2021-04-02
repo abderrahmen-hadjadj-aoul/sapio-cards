@@ -24,19 +24,21 @@
         </router-link>
       </template>
     </div>
-    <router-view v-if="isLogged" />
-    <div class="not-logged" v-else-if="checkedLogStatus">
-      <Login />
+    <div v-if="checking" class="connecting">
+      Connecting to your account...
     </div>
-    <div v-if="!checkedLogStatus">
-      Checking your account...
-    </div>
+    <template v-else>
+      <router-view v-if="isLogged" />
+      <div class="not-logged" v-else-if="checkedLogStatus">
+        <Login />
+      </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import Login from "@/components/Login.vue";
 import Register from "@/components/Register.vue";
 
@@ -44,8 +46,24 @@ import Register from "@/components/Register.vue";
   components: { Login, Register }
 })
 export default class Home extends Vue {
+  checking = false;
+
+  @Watch("checkingLogStatus")
+  onChecked(checking) {
+    console.log("checkingLogStatus", checking);
+    if (!checking) {
+      setTimeout(() => {
+        console.log("---> checkingLogStatus", checking);
+        this.checking = checking;
+      }, 1000);
+    } else {
+      this.checking = checking;
+    }
+  }
+
   mounted() {
     console.log("App mounted");
+    this.$store.dispatch("getCurrentUser");
   }
 
   get online() {
@@ -54,6 +72,10 @@ export default class Home extends Vue {
 
   get isLogged() {
     return this.$store.state.isLogged;
+  }
+
+  get checkingLogStatus() {
+    return this.$store.state.checkingLogStatus;
   }
 
   get checkedLogStatus() {
@@ -133,5 +155,11 @@ h1.brand {
     }
     flex: 1;
   }
+}
+
+.connecting {
+  margin-top: 60px;
+  font-size: 2em;
+  text-align: center;
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <div class="login">
     <h1>Login</h1>
-    <at-alert type="error" v-if="error" :message="error" />
+    <at-alert id="error" type="error" v-if="error" :message="error" />
     <label for="user">User</label>
     <at-input id="user" type="text" v-model="user" />
     <label for="password">Password</label>
     <at-input id="password" type="password" v-model="password" />
-    <at-button type="primary" @click="login">Login</at-button>
+    <at-button id="login" type="primary" @click="login">Login</at-button>
     <br />
     <br />
     <p>
@@ -27,11 +27,7 @@ export default class Login extends Vue {
   user = "";
   password = "";
 
-  error = "";
-
-  mounted() {
-    console.log("login mounted");
-  }
+  error = "aaa";
 
   async login() {
     const credentials = {
@@ -39,9 +35,10 @@ export default class Login extends Vue {
       password: this.password
     };
     const res = await this.$store.dispatch("login", credentials);
-    console.log("res", res);
+    console.error("res", res);
     if (res.error) {
       this.error = res.message;
+      console.log("setting error");
       return;
     }
     this.$router.push("/my-decks");

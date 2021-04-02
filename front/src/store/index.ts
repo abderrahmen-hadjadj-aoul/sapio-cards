@@ -107,6 +107,7 @@ const store = new Vuex.Store({
       this.commit("setCurrentUser", null);
       context.commit("setLoggedStatus", false);
       localStorage.apikey = "";
+      document.cookie = "";
     },
     // DECKS
     async getPublicDecks(context) {

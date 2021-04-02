@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-
     <div id="top-message" v-if="!online">
       You are offline
     </div>
@@ -19,7 +18,7 @@
       </template>
       <router-link to="/about">About</router-link>
       <template v-if="isLogged">
-        <router-link to="/logout" @click.native="logout">
+        <router-link to="/logout" @click.native="logout" id="nav-logout">
           Logout ({{ user.email }})
         </router-link>
       </template>

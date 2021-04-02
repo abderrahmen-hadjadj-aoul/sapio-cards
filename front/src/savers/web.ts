@@ -5,6 +5,10 @@ const apikeyTest = process.env.VUE_APP_API_KEY_TEST;
 
 let apikey = localStorage.apikey;
 if (apikeyTest) {
+  console.log(
+    "VUE_APP_API_KEY_TEST detected, setting defautl apikey:",
+    apikeyTest
+  );
   apikey = apikeyTest;
 }
 const headers = {};
@@ -18,11 +22,13 @@ let request = axios.create({
 });
 
 function setHeader(user) {
+  const newHeader = {};
+  if (user && user.apikey) {
+    newHeader["X-AUTH-TOKEN"] = user.apikey;
+  }
   request = axios.create({
     baseURL,
-    headers: {
-      "X-AUTH-TOKEN": user.apikey
-    }
+    headers: newHeader
   });
 }
 
@@ -47,6 +53,7 @@ export default class WebSaver extends Saver {
 
   async logout() {
     await request.get("/logout");
+    setHeader({});
   }
 
   async getPublicDecks() {

@@ -27,7 +27,7 @@ export default class Login extends Vue {
   user = "";
   password = "";
 
-  error = "aaa";
+  error = "";
 
   async login() {
     const credentials = {
@@ -35,10 +35,8 @@ export default class Login extends Vue {
       password: this.password
     };
     const res = await this.$store.dispatch("login", credentials);
-    console.error("res", res);
-    if (res.error) {
+    if (res && res.error) {
       this.error = res.message;
-      console.log("setting error");
       return;
     }
     this.$router.push("/my-decks");

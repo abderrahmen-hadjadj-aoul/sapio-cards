@@ -9,12 +9,18 @@ Vue.use(AtComponents);
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe("Browse.vue", () => {
+declare module "vue/types/vue" {
+  interface Vue {
+    error: string;
+  }
+}
+
+describe("Login.vue", () => {
   it("login properly", async () => {
-    const callLogin = jest.fn();
+    const loginButton = jest.fn();
     const actions = {
       async login() {
-        callLogin();
+        loginButton();
         return {};
       }
     };
@@ -28,27 +34,34 @@ describe("Browse.vue", () => {
     };
     const wrapper = mount(Login, { mocks, localVue, store });
     await wrapper.findComponent(AtComponents.Button).trigger("click");
-    expect(callLogin).toHaveBeenCalled();
+    expect(loginButton).toHaveBeenCalled();
     expect(mocks.$router.push).toHaveBeenCalled();
+    expect(wrapper.findComponent(AtComponents.Alert).exists()).toBe(false);
   });
 
   it("display an error message", async () => {
-    const callLogin = jest.fn();
     const message = "some error message";
+    const loginButton = jest.fn();
     const actions = {
       async login() {
-        callLogin();
-        return { error: { message } };
+        loginButton();
+        return { error: true, message };
       }
     };
     const store = new Vuex.Store({
       actions
     });
-    const wrapper = mount(Login, { localVue, store });
+    const mocks = {
+      $router: {
+        push: jest.fn()
+      }
+    };
+    const wrapper = mount(Login, { mocks, localVue, store });
     await wrapper.findComponent(AtComponents.Button).trigger("click");
-    expect(callLogin).toHaveBeenCalled();
-    console.log("check message");
-    console.log(wrapper.findAll("*"));
-    expect(wrapper.findComponent(AtComponents.Alert).text()).toBe(message);
+    expect(loginButton).toHaveBeenCalled();
+    await Vue.nextTick();
+    expect(wrapper.vm.error).toBe(message);
+    const alertWrapper = wrapper.findComponent(AtComponents.Alert);
+    expect(alertWrapper.text()).toBe(message);
   });
 });

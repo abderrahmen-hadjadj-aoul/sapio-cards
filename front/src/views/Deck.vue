@@ -1,20 +1,21 @@
 <template>
-  <div class="deck" v-if="deck">
+  <div v-if="deck" class="deck" :data-test-id="deck.id">
     <div class="buttons">
       <at-button
-        type="primary"
-        @click="showModalDeck"
-        icon="icon-edit"
         v-if="editable"
+        id="update-deck-button"
+        type="primary"
+        icon="icon-edit"
+        @click="showModalDeck"
       >
         Update deck
       </at-button>
       <at-button
+        v-if="editable"
         type="primary"
         icon="icon-navigation"
-        @click="publish"
         :disabled="publishDisabled"
-        v-if="editable"
+        @click="publish"
       >
         Publish
       </at-button>
@@ -24,10 +25,10 @@
         </at-button>
       </router-link>
       <at-button
+        v-if="enableFavoriteButton"
         :disabled="disableFavorite"
         :type="typeFavorite"
         @click="toogleFavorites"
-        v-if="enableFavoriteButton"
       >
         <i class="icon icon-star-on"></i>
         &nbsp;&nbsp;
@@ -49,11 +50,27 @@
     <br />
     <br />
 
-    <form class="create-card" v-if="editable">
+    <form v-if="editable" class="create-card">
       <h2>Create new card</h2>
-      <at-textarea v-model="question" placeholder="Question"></at-textarea>
-      <at-textarea v-model="answer" placeholder="Answer"></at-textarea>
-      <at-button type="primary" @click="createCard">Create card</at-button>
+      <at-alert
+        v-if="errorCard"
+        id="error-card"
+        type="error"
+        :message="errorCard"
+      />
+      <at-textarea
+        id="question"
+        v-model="question"
+        placeholder="Question"
+      ></at-textarea>
+      <at-textarea
+        id="answer"
+        v-model="answer"
+        placeholder="Answer"
+      ></at-textarea>
+      <at-button id="create-card-button" type="primary" @click="createCard"
+        >Create card</at-button
+      >
     </form>
 
     <table class="cards">
@@ -65,9 +82,13 @@
         <th>Last</th>
         <th></th>
       </tr>
-      <tr v-for="(card, index) in cards" :key="card.id">
-        <td>#{{ index }}</td>
-        <td>{{ card.question }}</td>
+      <tr
+        v-for="(card, index) in cards"
+        :key="card.id"
+        :data-test-cardid="card.id"
+      >
+        <td class="index">#{{ index + 1 }}</td>
+        <td class="question">{{ card.question }}</td>
         <td class="answer">
           <span class="blur">
             {{ card.answer }}
@@ -86,15 +107,20 @@
         <td class="td-last">
           <div class="last">
             <span
-              v-for="(item, index) in last(card)"
-              :key="index"
+              v-for="(item, indexAnswer) in last(card)"
+              :key="indexAnswer"
               class="dot"
               :class="{ green: item }"
             ></span>
           </div>
         </td>
         <td>
-          <at-button icon="icon-edit" title="Edit" @click="showModalCard(card)">
+          <at-button
+            class="edit-card-button"
+            icon="icon-edit"
+            title="Edit"
+            @click="showModalCard(card)"
+          >
           </at-button>
         </td>
       </tr>
@@ -103,36 +129,74 @@
     <div class="bottom"></div>
 
     <at-modal
+      id="update-modal"
       v-model="showModalDeckStatus"
       title="Edit deck"
       @on-confirm="editDeck"
       @on-cancel="showModalDeckStatus = false"
     >
+      <at-alert
+        v-if="errorDeck"
+        id="deck-error"
+        type="error"
+        :message="errorDeck"
+      />
       <form class="edit-card">
         <label>Name</label>
-        <at-input v-model="editDeckValue.name" placeholder="Name of the deck">
+        <at-input
+          id="name"
+          v-model="editDeckValue.name"
+          placeholder="Name of the deck"
+        >
         </at-input>
         <label>Description</label>
         <at-textarea
+          id="description"
           v-model="editDeckValue.description"
           placeholder="Description of the deck"
         >
         </at-textarea>
       </form>
+      <div slot="footer">
+        <at-button id="edit-deck-ok-button" type="primary" @click="editDeck">
+          OK
+        </at-button>
+        <at-button @click="showModalDeckStatus = false">Cancel</at-button>
+      </div>
     </at-modal>
 
     <at-modal
       v-model="showModalCardStatus"
       title="Edit card"
       @on-confirm="editCard"
-      @on-cancel="showModal = false"
+      @on-cancel="showModalCard = false"
     >
+      <at-alert
+        v-if="errorCardModal"
+        id="error-edit-card-modal"
+        type="error"
+        :message="errorCardModal"
+      />
       <form class="edit-card">
-        <at-textarea v-model="editCardValue.question" placeholder="Question">
+        <at-textarea
+          id="modal-question"
+          v-model="editCardValue.question"
+          placeholder="Question"
+        >
         </at-textarea>
-        <at-textarea v-model="editCardValue.answer" placeholder="Answer">
+        <at-textarea
+          id="modal-answer"
+          v-model="editCardValue.answer"
+          placeholder="Answer"
+        >
         </at-textarea>
       </form>
+      <div slot="footer">
+        <at-button id="edit-card-ok-button" type="primary" @click="editCard">
+          OK
+        </at-button>
+        <at-button @click="showModalCardStatus = false">Cancel</at-button>
+      </div>
     </at-modal>
   </div>
 </template>
@@ -145,6 +209,9 @@ import { Card } from "../types";
 export default class Deck extends Vue {
   question = "";
   answer = "";
+  errorDeck = "";
+  errorCard = "";
+  errorCardModal = "";
 
   showModalCardStatus = false;
   showModalDeckStatus = false;
@@ -238,6 +305,14 @@ export default class Deck extends Vue {
   }
 
   async createCard() {
+    this.errorCard = "";
+    if (!this.question) {
+      this.errorCard += "Question can NOT be empty.";
+    }
+    if (!this.answer) {
+      this.errorCard += " Answer can NOT be empty.";
+    }
+    if (this.errorCard) return;
     const card = {
       question: this.question,
       answer: this.answer
@@ -259,6 +334,12 @@ export default class Deck extends Vue {
 
   async editDeck() {
     console.log("edit deck", this.deck);
+    this.errorDeck = "";
+    if (!this.editDeckValue.name.trim()) {
+      this.errorDeck = "Name can NOT be empty";
+      console.error(this.error);
+      return;
+    }
     const patch = {
       name: this.editDeckValue.name,
       description: this.editDeckValue.description
@@ -293,6 +374,12 @@ export default class Deck extends Vue {
 
   async editCard() {
     console.log("edit card", this.card);
+    this.errorCardModal = "";
+    if (!this.editCardValue.question)
+      this.errorCardModal += "Question can NOT be empty.";
+    if (!this.editCardValue.answer)
+      this.errorCardModal += "Answer can NOT be empty";
+    if (this.errorCardModal) return;
     const patch = {
       question: this.editCardValue.question,
       answer: this.editCardValue.answer
@@ -309,6 +396,7 @@ export default class Deck extends Vue {
         message: "Card updated successfully",
         type: "success"
       });
+      //this.showModalCard = false;
     } else {
       this.$Notify({
         title: "Card update",

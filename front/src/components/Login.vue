@@ -1,11 +1,11 @@
 <template>
   <div class="login">
     <h1>Login</h1>
-    <at-alert id="error" type="error" v-if="error" :message="error" />
+    <at-alert v-if="error" id="error" type="error" :message="error" />
     <label for="user">User</label>
-    <at-input id="user" type="text" v-model="user" />
+    <at-input id="user" v-model="user" type="text" />
     <label for="password">Password</label>
-    <at-input id="password" type="password" v-model="password" />
+    <at-input id="password" v-model="password" type="password" />
     <at-button id="login" type="primary" @click="login">Login</at-button>
     <br />
     <br />

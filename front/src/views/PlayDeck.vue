@@ -1,5 +1,5 @@
 <template>
-  <div class="deck" v-if="deck">
+  <div v-if="deck" class="deck">
     <router-link :to="'/deck/' + deckid">
       <i class="icon icon-chevron-left"></i>
       Back
@@ -28,16 +28,16 @@
       <at-button
         type="success"
         size="large"
-        @click="yes"
         :disabled="buttonDisabled || noMoreFailures"
+        @click="yes"
       >
         Yes
       </at-button>
       <at-button
         type="error"
         size="large"
-        @click="no"
         :disabled="buttonDisabled || noMoreFailures"
+        @click="no"
       >
         No
       </at-button>

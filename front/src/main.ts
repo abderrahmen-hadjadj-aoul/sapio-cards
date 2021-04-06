@@ -5,6 +5,8 @@ import store from "./store";
 import AtComponents from "at-ui";
 import "at-ui-style";
 import "@/assets/global.scss";
+import TextHighlight from "vue-text-highlight";
+Vue.component("text-highlight", TextHighlight);
 
 Vue.config.productionTip = false;
 

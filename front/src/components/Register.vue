@@ -2,11 +2,11 @@
   <div class="register">
     <h1>Create an account</h1>
     <label for="user">User</label>
-    <at-input id="user" type="text" v-model="user" />
+    <at-input id="user" v-model="user" type="text" />
     <label for="password">Password</label>
-    <at-input id="password" type="password" v-model="password" />
+    <at-input id="password" v-model="password" type="password" />
     <label for="password">Password verification</label>
-    <at-input id="password" type="password" v-model="password2" />
+    <at-input id="password" v-model="password2" type="password" />
     <at-button type="primary">Create account</at-button>
   </div>
 </template>

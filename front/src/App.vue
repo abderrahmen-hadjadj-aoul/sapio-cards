@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div id="top-message" v-if="!online">
+    <div v-if="!online" id="top-message">
       You are offline
     </div>
 
@@ -14,11 +14,11 @@
       <router-link to="/">Home</router-link>
       <template v-if="isLogged">
         <router-link id="nav-browse" to="/browse">Browse</router-link>
-        <router-link id="nav-my-deck" to="/my-decks">My Decks</router-link>
+        <router-link id="nav-my-decks" to="/my-decks">My Decks</router-link>
       </template>
       <router-link to="/about">About</router-link>
       <template v-if="isLogged">
-        <router-link to="/logout" @click.native="logout" id="nav-logout">
+        <router-link id="nav-logout" to="/logout" @click.native="logout">
           Logout ({{ user.email }})
         </router-link>
       </template>
@@ -28,7 +28,7 @@
     </div>
     <template v-else>
       <router-view v-if="isLogged" />
-      <div class="not-logged" v-else-if="checkedLogStatus">
+      <div v-else-if="checkedLogStatus" class="not-logged">
         <Login />
       </div>
     </template>
@@ -98,8 +98,8 @@ export default class Home extends Vue {
 #top-message {
   padding: 5px;
   text-align: center;
-  color: #C82A1D;
-  background-color: #FFE3E0;
+  color: #c82a1d;
+  background-color: #ffe3e0;
   font-weight: bold;
 }
 

@@ -1,12 +1,12 @@
 <template>
   <div class="my-decks">
     <router-link class="button" to="/deck/create">
-      <at-button type="primary" icon="icon-plus">
+      <at-button id="create-new-deck-button" type="primary" icon="icon-plus">
         Create new deck
       </at-button>
     </router-link>
 
-    <h1>My Decks</h1>
+    <h1 class="title">My Decks</h1>
 
     <at-radio-group v-model="type">
       <at-radio-button label="mine">Mine</at-radio-button>
@@ -22,10 +22,17 @@
     <br />
 
     <div id="decks">
-      <section class="deck" v-for="deck in decks" :key="deck.id">
+      <section
+        v-for="deck in decks"
+        :key="deck.id"
+        :data-test-id="deck.id"
+        class="deck"
+      >
         <router-link :to="'/deck/' + deck.id">
-          <span v-html="searched(deck.name)" class="name"></span>
-          <span class="versions" v-if="deck.publishedDecks.length > 0">
+          <span class="name">
+            <text-highlight :queries="search">{{ deck.name }}</text-highlight>
+          </span>
+          <span v-if="deck.publishedDecks.length > 0" class="versions">
             {{ deck.publishedDecks.length }} versions
           </span>
         </router-link>
@@ -64,6 +71,11 @@ export default class MyDecks extends Vue {
     const escaped = escapeRegExp(this.search);
     const regex = new RegExp("" + escaped + "", "i");
     return text.replace(regex, "<span>$&</span>");
+  }
+
+  get queries() {
+    if (this.search) return [this.search];
+    return [];
   }
 
   get decks() {
@@ -152,10 +164,6 @@ section {
       }
     }
   }
-}
-
-::v-deep .name span {
-  background-color: yellow;
 }
 
 .count {

@@ -9,9 +9,9 @@
     <p v-if="search" class="count">Found {{ decks.length }} deck(s)</p>
     <br />
 
-    <section class="deck" v-for="deck in decks" :key="deck.id">
+    <section v-for="deck in decks" :key="deck.id" class="deck">
       <router-link :to="'/deck/' + deck.id">
-        <span v-html="searched(deck.name)" class="name"></span>
+        <span class="name" v-html="searched(deck.name)"></span>
         <span class="version">Version {{ deck.version }}</span>
       </router-link>
     </section>

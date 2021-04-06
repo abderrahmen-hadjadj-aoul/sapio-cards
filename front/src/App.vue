@@ -13,8 +13,8 @@
     <div id="nav">
       <router-link to="/">Home</router-link>
       <template v-if="isLogged">
-        <router-link to="/browse">Browse</router-link>
-        <router-link to="/my-decks">My Decks</router-link>
+        <router-link id="nav-browse" to="/browse">Browse</router-link>
+        <router-link id="nav-my-deck" to="/my-decks">My Decks</router-link>
       </template>
       <router-link to="/about">About</router-link>
       <template v-if="isLogged">

@@ -35,6 +35,23 @@ class AppFixtures extends Fixture
         $user = new User();
         $user->setEmail($email);
         $user->setApikey($apikey);
+        $user->setIsVerified(true);
+        $user->setRoles(['ROLE_USER']);
+
+        $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);
+        $user->setPassword($encodedPassword);
+
+        $email = "not.verified@not.verified";
+        $apikey = "TEST-API-KEY-NOT-VERIFIED";
+        $plainPassword = "test";
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        $user = new User();
+        $user->setEmail($email);
+        $user->setApikey($apikey);
+        $user->setIsVerified(false);
         $user->setRoles(['ROLE_USER']);
 
         $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);

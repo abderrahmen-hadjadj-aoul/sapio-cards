@@ -52,7 +52,7 @@ export default class WebSaver extends Saver {
   }
 
   async logout() {
-    await request.get("/logout");
+    await request.get("/api-logout");
     setHeader({});
   }
 

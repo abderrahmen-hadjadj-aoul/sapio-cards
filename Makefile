@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+tests: tests-back tests-e2e
+
 tests-back: export APP_ENV=test
 tests-back:
 	symfony console doctrine:database:drop --force || true
@@ -9,8 +11,9 @@ tests-back:
 	symfony php bin/phpunit --testdox $@
 .PHONY: tests tests-e2e tests-front-e2e-live
 
-tests-front-e2e: export APP_ENV=test
-tests-front-e2e:
+tests-e2e: export APP_ENV=test
+tests-e2e:
+	docker-compose up -d
 	symfony console doctrine:database:drop --force || true
 	symfony console doctrine:database:create
 	symfony console doctrine:migrations:migrate -n
@@ -18,8 +21,9 @@ tests-front-e2e:
 	symfony server:start &
 	cd front && yarn test:e2e --headless
 	symfony server:stop
+	docker-compose down
 
-tests-front-e2e-live:
+tests-e2e-live:
 	cd front && yarn test:e2e
 
 build:

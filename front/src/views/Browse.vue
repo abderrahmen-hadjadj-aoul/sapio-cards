@@ -1,5 +1,5 @@
 <template>
-  <div class="my-decks">
+  <div class="browse">
     <h1>Public Decks</h1>
     <at-input v-model="search" placeholder="Search decks" prepend-button>
       <template slot="prepend">

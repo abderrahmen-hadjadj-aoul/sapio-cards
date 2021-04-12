@@ -82,7 +82,7 @@ describe("Card", () => {
       .should("exist");
   });
 
-  it.only("should display an error message for empty question in modal", () => {
+  it("should display an error message for empty question in modal", () => {
     utils.login(cy);
     // Create Deck
     const name = "some name " + Math.random();

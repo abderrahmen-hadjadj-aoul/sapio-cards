@@ -2,7 +2,7 @@
 
 import data from "../var";
 
-describe("My First Test", () => {
+describe("Login", () => {
   it("should login properly", () => {
     cy.visit("/");
     cy.contains("h1.brand", "SAPIO CARDS").should("exist");
@@ -15,19 +15,25 @@ describe("My First Test", () => {
     cy.get("#login").click();
     // Redirect to my decks
     cy.get("#nav-my-decks.router-link-active").should("exist");
+    cy.get("#nav-logout").should("exist");
+    // Reload
+    cy.reload();
+    cy.get("#nav-my-decks.router-link-active").should("exist");
+    cy.get("#nav-logout").should("exist");
   });
 
   it("should logout properly", () => {
     cy.visit("/");
-
     // Login
     cy.get("#user > input").type(data.email);
     cy.get("#password > input").type(data.password);
     cy.get("#login").click();
     cy.get("#nav-logout").should("exist");
-
     // Logout
     cy.get("#nav-logout").click();
+    cy.get("#nav-logout").should("not.exist");
+    // Check after refresh
+    cy.visit("/");
     cy.get("#nav-logout").should("not.exist");
   });
 

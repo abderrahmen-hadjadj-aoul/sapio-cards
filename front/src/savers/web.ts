@@ -99,7 +99,8 @@ export default class WebSaver extends Saver {
 
   async publishDeck(deck) {
     const deckid = deck.id;
-    const published = await request.post(`/api/decks/${deckid}/published`);
+    const res = await request.post(`/api/decks/${deckid}/published`);
+    const published = res.data.deck;
     return published;
   }
 

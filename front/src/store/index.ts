@@ -147,8 +147,11 @@ const store = new Vuex.Store({
       return res;
     },
     async publishDeck(context, deck) {
+      console.log("publishDeck >", deck.publishedDecks);
       const published = await saver.publishDeck(deck);
+      if (!deck.publishedDecks) deck.publishedDecks = [];
       deck.publishedDecks.push(published);
+      console.log("publish", deck);
       return { success: true };
     },
     async addToFavorites(context, deck) {

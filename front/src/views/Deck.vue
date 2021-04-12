@@ -12,6 +12,7 @@
       </at-button>
       <at-button
         v-if="editable"
+        id="publish-button"
         type="primary"
         icon="icon-navigation"
         :disabled="publishDisabled"
@@ -20,7 +21,7 @@
         Publish
       </at-button>
       <router-link :to="'/play-deck/' + deckid">
-        <at-button type="success" icon="icon-play">
+        <at-button id="play-card-button" type="success" icon="icon-play">
           Play Deck
         </at-button>
       </router-link>
@@ -42,8 +43,9 @@
     </div>
 
     <h1>Deck: {{ deck.name }}</h1>
-    <p>Failures: {{ failures }} / {{ total }} - {{ percentage }}%</p>
-    <p>{{ deck.description }}</p>
+    <p id="publications">Publications: {{ publications.length }}</p>
+    <p>Failures: {{ failures }} / {{ total }} - {{ percentage }} %</p>
+    <p id="description-text">{{ deck.description }}</p>
 
     <at-switch :value="failedOnly" @change="onChangeFailedOnly"></at-switch>
     Failed only
@@ -62,13 +64,20 @@
         id="question"
         v-model="question"
         placeholder="Question"
+        :disabled="creatingCard"
       ></at-textarea>
       <at-textarea
         id="answer"
         v-model="answer"
         placeholder="Answer"
+        :disabled="creatingCard"
       ></at-textarea>
-      <at-button id="create-card-button" type="primary" @click="createCard"
+      <at-button
+        id="create-card-button"
+        type="primary"
+        :class="{ disabled: creatingCard }"
+        :disabled="creatingCard"
+        @click="createCard"
         >Create card</at-button
       >
     </form>
@@ -94,7 +103,7 @@
             {{ card.answer }}
           </span>
         </td>
-        <td>
+        <td class="failures">
           <div v-if="card.answers">
             {{ card.answers.failure }} /
             {{ card.answers.success + card.answers.failure }} -
@@ -212,6 +221,7 @@ export default class Deck extends Vue {
   errorDeck = "";
   errorCard = "";
   errorCardModal = "";
+  creatingCard = false;
 
   showModalCardStatus = false;
   showModalDeckStatus = false;
@@ -228,6 +238,7 @@ export default class Deck extends Vue {
 
   mounted() {
     console.log("mounted");
+    this.$store.commit("resetDeck");
     this.$store.dispatch("getDeck", this.deckid);
   }
 
@@ -249,6 +260,11 @@ export default class Deck extends Vue {
       return this.failed;
     }
     return this.deck.cards;
+  }
+
+  get publications() {
+    if (this.deck.publishedDecks) return this.deck.publishedDecks;
+    return [];
   }
 
   get failures() {
@@ -283,6 +299,7 @@ export default class Deck extends Vue {
   }
 
   get percentage() {
+    if (this.total === 0) return "?";
     let p = this.failures / this.total;
     p = 100 * p;
     p = Math.ceil(p);
@@ -317,11 +334,14 @@ export default class Deck extends Vue {
       question: this.question,
       answer: this.answer
     };
+    console.log("Create card", card);
     const data = {
       deck: this.deck,
       card
     };
+    this.creatingCard = true;
     await this.$store.dispatch("createCard", data);
+    this.creatingCard = false;
     this.question = "";
     this.answer = "";
   }
@@ -337,7 +357,7 @@ export default class Deck extends Vue {
     this.errorDeck = "";
     if (!this.editDeckValue.name.trim()) {
       this.errorDeck = "Name can NOT be empty";
-      console.error(this.error);
+      console.error(this.errorDeck);
       return;
     }
     const patch = {
@@ -356,6 +376,7 @@ export default class Deck extends Vue {
         message: "Deck updated successfully",
         type: "success"
       });
+      this.showModalDeckStatus = false;
     } else {
       this.$Notify({
         title: "Deck update",

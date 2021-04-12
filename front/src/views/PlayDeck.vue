@@ -1,6 +1,6 @@
 <template>
   <div v-if="deck" class="deck">
-    <router-link :to="'/deck/' + deckid">
+    <router-link id="back" :to="'/deck/' + deckid">
       <i class="icon icon-chevron-left"></i>
       Back
     </router-link>
@@ -26,6 +26,7 @@
     <h2>Do you know how to answer this question ?</h2>
     <div class="evaluation">
       <at-button
+        id="yes-button"
         type="success"
         size="large"
         :disabled="buttonDisabled || noMoreFailures"
@@ -34,6 +35,7 @@
         Yes
       </at-button>
       <at-button
+        id="no-button"
         type="error"
         size="large"
         :disabled="buttonDisabled || noMoreFailures"
@@ -57,12 +59,12 @@
       <h2>
         Question
       </h2>
-      <p v-if="card" class="question">{{ card.question }}</p>
+      <p v-if="card" id="question" class="question">{{ card.question }}</p>
       <h2>
         Answer
       </h2>
       <p v-if="card" class="answer">
-        <span>
+        <span id="ansqer">
           {{ card.answer }}
         </span>
       </p>
